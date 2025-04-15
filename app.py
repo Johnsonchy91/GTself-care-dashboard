@@ -4,74 +4,91 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import json
+from datetime import datetime
 
 # Set page configuration
 st.set_page_config(
     page_title="Self-Care School Dashboard",
-    page_icon="🏃‍♀️",
+    page_icon="🧘‍♀️",
     layout="wide"
 )
 
-# Add CSS for styling
+# Self Care School brand colors
+# Main palette based on the website
+# Primary: Soft teal (#6BBFAE)
+# Secondary: Light blue (#A4C3DE)
+# Accent: Soft purple (#B9A6CD)
+# Neutral: Soft gray (#F0F2F5)
+# Text: Dark blue-gray (#334c5e)
+
+# Add CSS for styling to match website aesthetic
 st.markdown("""
 <style>
     .main-header {
         font-size: 2.5rem;
         font-weight: bold;
-        color: #3730a3;
+        color: #334c5e;
         margin-bottom: 0px;
+        font-family: 'Helvetica Neue', sans-serif;
     }
     .sub-header {
         font-size: 1.5rem;
         font-weight: bold;
-        color: #4338ca;
+        color: #334c5e;
         margin-top: 20px;
         margin-bottom: 10px;
+        font-family: 'Helvetica Neue', sans-serif;
     }
     .metric-card {
-        background-color: #f3f4f6;
+        background-color: #F0F2F5;
         padding: 15px;
         border-radius: 10px;
         margin: 5px;
         text-align: center;
+        border: 1px solid rgba(106, 191, 174, 0.2);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     .metric-value {
         font-size: 1.8rem;
         font-weight: bold;
+        color: #334c5e;
     }
     .metric-label {
         font-size: 1rem;
-        color: #4b5563;
+        color: #6BBFAE;
+        font-weight: 500;
     }
     .status-achieved {
-        background-color: #d1fae5;
-        color: #065f46;
+        background-color: rgba(106, 191, 174, 0.2);
+        color: #3b8177;
         padding: 4px 8px;
         border-radius: 9999px;
         font-size: 0.75rem;
         font-weight: 600;
     }
     .status-behind {
-        background-color: #fef3c7;
-        color: #92400e;
+        background-color: rgba(164, 195, 222, 0.2);
+        color: #5882a9;
         padding: 4px 8px;
         border-radius: 9999px;
         font-size: 0.75rem;
         font-weight: 600;
     }
     .status-at-risk {
-        background-color: #fee2e2;
-        color: #b91c1c;
+        background-color: rgba(185, 166, 205, 0.2);
+        color: #7e6a91;
         padding: 4px 8px;
         border-radius: 9999px;
         font-size: 0.75rem;
         font-weight: 600;
     }
     .insight-container {
-        background-color: #f9fafb;
+        background-color: #F0F2F5;
         padding: 15px;
         border-radius: 10px;
         margin-top: 15px;
+        border: 1px solid rgba(106, 191, 174, 0.2);
     }
     .stTabs [data-baseweb="tab-list"] {
         gap: 24px;
@@ -84,121 +101,173 @@ st.markdown("""
         gap: 1px;
         padding-top: 10px;
         padding-bottom: 10px;
+        font-family: 'Helvetica Neue', sans-serif;
+        color: #334c5e;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #e0e7ff;
-        color: #4338ca;
+        background-color: rgba(106, 191, 174, 0.2);
+        color: #334c5e;
+    }
+    .stButton>button {
+        background-color: #6BBFAE;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+    }
+    .stButton>button:hover {
+        background-color: #5aa99a;
+    }
+    div[data-testid="stForm"] {
+        border: 1px solid rgba(106, 191, 174, 0.3);
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #F0F2F5;
+    }
+    div.row-widget.stRadio > div {
+        display: flex;
+        flex-direction: row;
+    }
+    div.row-widget.stRadio > div[role="radiogroup"] > label {
+        margin-right: 15px;
+        padding: 5px 10px;
+        border: 1px solid rgba(106, 191, 174, 0.3);
+        border-radius: 5px;
+    }
+    .stTextInput>div>div>input {
+        border-radius: 5px;
+        border: 1px solid rgba(106, 191, 174, 0.3);
+    }
+    .stNumberInput>div>div>input {
+        border-radius: 5px;
+        border: 1px solid rgba(106, 191, 174, 0.3);
+    }
+    .stDateInput>div>div>input {
+        border-radius: 5px;
+        border: 1px solid rgba(106, 191, 174, 0.3);
+    }
+    .stSelectbox>div>div>div {
+        border-radius: 5px;
+        border: 1px solid rgba(106, 191, 174, 0.3);
+    }
+    footer {
+        visibility: hidden;
     }
 </style>
 """, unsafe_allow_html=True)
 
+# Function to load data from a file or initialize default values
+def load_data():
+    try:
+        with open('dashboard_data.json', 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Default data if file doesn't exist or is corrupted
+        return {
+            'program_metrics': {
+                'Registrants': {'value': 10595, 'target': 10000, 'color': '#6BBFAE'},
+                'Contacts': {'value': 3938, 'target': None, 'color': '#A4C3DE'},
+                'NEW Contacts': {'value': 229, 'target': None, 'color': '#B9A6CD'},
+                'Completed Week 0': {'value': 1983, 'target': None, 'color': '#F3A950'}
+            },
+            'age_data': {
+                '18-30': {'value': 229, 'color': '#6BBFAE'},
+                'Other Ages': {'value': 3709, 'color': '#A4C3DE'}
+            },
+            'sms_data': {
+                'Week 1 Reminder': {'delivered': 82337, 'clicked': 7285, 'rate': 9},
+                'Technical Issue': {'delivered': 82144, 'clicked': 8152, 'rate': 9.9}
+            },
+            'traffic_data': {
+                'Visitors': 16300,
+                'Sessions': 24500,
+                'Pageviews': 45500
+            },
+            'stream_data': {
+                'Downloads': 4694,
+                'Target': 10000
+            },
+            'social_data': {
+                'Clicks to Site': 25700,
+                'Unique Users Reached': 101900,
+                'Impressions Delivered': 205100,
+                'Direct Engagements': 2000
+            },
+            'kpi_progress': {
+                'Enrollment': {'current': 10595, 'target': 10000, 'percentage': 106, 'status': 'Achieved'},
+                '18-30 Enrollment': {'current': 229, 'target': 5000, 'percentage': 5, 'status': 'At Risk'},
+                'Week 0 Completion': {'current': 1983, 'target': 10000, 'percentage': 20, 'status': 'Behind'},
+                'Site Traffic': {'current': 16300, 'target': 250000, 'percentage': 7, 'status': 'Behind'}
+            },
+            'last_updated': datetime.now().strftime("%B %d, %Y %H:%M")
+        }
+
+# Function to save data
+def save_data(data):
+    data['last_updated'] = datetime.now().strftime("%B %d, %Y %H:%M")
+    with open('dashboard_data.json', 'w') as f:
+        json.dump(data, f, indent=4)
+    return data
+
 # Initialize data
-# Program Metrics Data
-program_metrics = {
-    'Registrants': {'value': 10595, 'target': 10000, 'color': '#8884d8'},
-    'Contacts': {'value': 3938, 'target': None, 'color': '#82ca9d'},
-    'NEW Contacts': {'value': 229, 'target': None, 'color': '#ffc658'},
-    'Completed Week 0': {'value': 1983, 'target': None, 'color': '#ff8042'}
-}
-
-# Age Demographics
-age_data = {
-    '18-30': {'value': 229, 'color': '#0088FE'},
-    'Other Ages': {'value': 3709, 'color': '#00C49F'}
-}
-
-# SMS Campaign Data
-sms_data = {
-    'Week 1 Reminder': {'delivered': 82337, 'clicked': 7285, 'rate': 9},
-    'Technical Issue': {'delivered': 82144, 'clicked': 8152, 'rate': 9.9}
-}
-
-# Website Traffic Data
-traffic_data = {
-    'Visitors': 16300,
-    'Sessions': 24500,
-    'Pageviews': 45500
-}
-
-# Download Data
-stream_data = {
-    'Downloads': 4694,
-    'Target': 10000
-}
-
-# Social Media & Marketing Data
-social_data = {
-    'Clicks to Site': 25700,
-    'Unique Users Reached': 101900,
-    'Impressions Delivered': 205100,
-    'Direct Engagements': 2000
-}
-
-# KPI Progress Data
-kpi_progress = {
-    'Enrollment': {'current': 10595, 'target': 10000, 'percentage': 106, 'status': 'Achieved'},
-    '18-30 Enrollment': {'current': 229, 'target': 5000, 'percentage': 5, 'status': 'At Risk'},
-    'Week 0 Completion': {'current': 1983, 'target': 10000, 'percentage': 20, 'status': 'Behind'},
-    'Site Traffic': {'current': 16300, 'target': 250000, 'percentage': 7, 'status': 'Behind'}
-}
+data = load_data()
 
 # Create tabs
-tab1, tab2 = st.tabs(["📊 Dashboard", "📈 Analysis & Recommendations"])
+tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "📈 Analysis & Recommendations", "✏️ Data Entry"])
 
 with tab1:
     # Dashboard Header
     st.markdown('<p class="main-header">Self-Care School Dashboard</p>', unsafe_allow_html=True)
-    st.markdown('Latest data as of April 15, 2025')
+    st.markdown(f'Latest data as of {data["last_updated"]}')
     
     # Top metrics
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.markdown("""
-        <div class="metric-card" style="background-color: #e0e7ff;">
+        st.markdown(f"""
+        <div class="metric-card" style="background-color: rgba(106, 191, 174, 0.1);">
             <div class="metric-label">Registrants</div>
-            <div class="metric-value">{:,}</div>
-            <div>Target: {:,}</div>
+            <div class="metric-value">{data["program_metrics"]["Registrants"]["value"]:,}</div>
+            <div>Target: {data["program_metrics"]["Registrants"]["target"]:,}</div>
         </div>
-        """.format(program_metrics['Registrants']['value'], program_metrics['Registrants']['target']), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     with col2:
-        st.markdown("""
-        <div class="metric-card" style="background-color: #fef3c7;">
+        st.markdown(f"""
+        <div class="metric-card" style="background-color: rgba(164, 195, 222, 0.1);">
             <div class="metric-label">Visitors</div>
-            <div class="metric-value">{:,}</div>
+            <div class="metric-value">{data["traffic_data"]["Visitors"]:,}</div>
         </div>
-        """.format(traffic_data['Visitors']), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     with col3:
-        st.markdown("""
-        <div class="metric-card" style="background-color: #ffedd5;">
+        st.markdown(f"""
+        <div class="metric-card" style="background-color: rgba(185, 166, 205, 0.1);">
             <div class="metric-label">Week 0 Completed</div>
-            <div class="metric-value">{:,}</div>
-            <div>{:.1f}% of registrants</div>
+            <div class="metric-value">{data["program_metrics"]["Completed Week 0"]["value"]:,}</div>
+            <div>{data["program_metrics"]["Completed Week 0"]["value"] / data["program_metrics"]["Registrants"]["value"] * 100:.1f}% of registrants</div>
         </div>
-        """.format(program_metrics['Completed Week 0']['value'], 
-                  program_metrics['Completed Week 0']['value'] / program_metrics['Registrants']['value'] * 100), 
-                  unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     # KPI Progress & Analysis
     st.markdown('<p class="sub-header">KPI Progress & Analysis</p>', unsafe_allow_html=True)
     
     # Create progress bars
-    for key, item in kpi_progress.items():
+    for key, item in data["kpi_progress"].items():
         col1, col2, col3 = st.columns([1, 2, 1])
         with col1:
             st.markdown(f"**{key}**")
         with col2:
             if key == 'Site Traffic':
-                progress = traffic_data['Visitors'] / item['target'] * 100
-                progress_text = f"{traffic_data['Visitors']:,} / {item['target']:,} ({int(progress)}%)"
+                progress = data["traffic_data"]["Visitors"] / item["target"] * 100
+                progress_text = f"{data['traffic_data']['Visitors']:,} / {item['target']:,} ({int(progress)}%)"
             else:
-                progress = min(item['percentage'], 100)
+                progress = min(item["percentage"], 100)
                 progress_text = f"{item['current']:,} / {item['target']:,} ({item['percentage']}%)"
             
-            progress_color = "#10b981" if item['status'] == 'Achieved' else "#f59e0b" if item['status'] == 'Behind' else "#ef4444"
-            st.progress(progress/100)
+            progress_color = "#6BBFAE" if item["status"] == "Achieved" else "#A4C3DE" if item["status"] == "Behind" else "#B9A6CD"
+            st.progress(progress/100, progress_color)
         with col3:
             status_class = f"status-{item['status'].lower().replace(' ', '-')}"
             st.markdown(f"{progress_text} <span class='{status_class}'>{item['status']}</span>", unsafe_allow_html=True)
@@ -208,10 +277,10 @@ with tab1:
     <div class="insight-container">
         <h3>Key Insights:</h3>
         <ul>
-            <li style="color: #059669;"><strong>Enrollment target already exceeded (106% of goal)</strong> - <span class="status-achieved">Achieved</span></li>
-            <li style="color: #dc2626;"><strong>18-30 demographic severely underrepresented (5% of target)</strong> - <span class="status-at-risk">At Risk</span></li>
-            <li style="color: #d97706;"><strong>Program completion rates need improvement (20% of target)</strong> - <span class="status-behind">Behind</span></li>
-            <li style="color: #2563eb;"><strong>Site traffic currently at 7% of target (16.3K vs 250K)</strong> - <span class="status-behind">Behind</span></li>
+            <li style="color: #3b8177;"><strong>Enrollment target already exceeded (106% of goal)</strong> - <span class="status-achieved">Achieved</span></li>
+            <li style="color: #7e6a91;"><strong>18-30 demographic severely underrepresented (5% of target)</strong> - <span class="status-at-risk">At Risk</span></li>
+            <li style="color: #5882a9;"><strong>Program completion rates need improvement (20% of target)</strong> - <span class="status-behind">Behind</span></li>
+            <li style="color: #5882a9;"><strong>Site traffic currently at 7% of target (16.3K vs 250K)</strong> - <span class="status-behind">Behind</span></li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
@@ -223,9 +292,9 @@ with tab1:
     with col1:
         # Age Demographics Pie Chart
         age_df = pd.DataFrame({
-            'Age Group': list(age_data.keys()),
-            'Value': [item['value'] for item in age_data.values()],
-            'Color': [item['color'] for item in age_data.values()]
+            'Age Group': list(data["age_data"].keys()),
+            'Value': [item["value"] for item in data["age_data"].values()],
+            'Color': [item["color"] for item in data["age_data"].values()]
         })
         
         fig = px.pie(
@@ -233,16 +302,21 @@ with tab1:
             values='Value', 
             names='Age Group',
             color='Age Group',
-            color_discrete_map={'18-30': '#0088FE', 'Other Ages': '#00C49F'},
+            color_discrete_map={'18-30': '#6BBFAE', 'Other Ages': '#A4C3DE'},
             title="Age Demographics (Contacts)"
         )
         fig.update_traces(textinfo='percent+label')
+        fig.update_layout(
+            font=dict(family="Helvetica Neue, sans-serif", color="#334c5e"),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
         st.plotly_chart(fig, use_container_width=True)
         
         st.markdown(f"""
         <div style="text-align: center;">
-            <p><span style="color: #0088FE; font-weight: bold;">18-30:</span> {age_data['18-30']['value']} contacts ({age_data['18-30']['value']/(age_data['18-30']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
-            <p><span style="color: #00C49F; font-weight: bold;">Other Ages:</span> {age_data['Other Ages']['value']} contacts ({age_data['Other Ages']['value']/(age_data['18-30']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
+            <p><span style="color: #6BBFAE; font-weight: bold;">18-30:</span> {data["age_data"]["18-30"]["value"]} contacts ({data["age_data"]["18-30"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
+            <p><span style="color: #A4C3DE; font-weight: bold;">Other Ages:</span> {data["age_data"]["Other Ages"]["value"]} contacts ({data["age_data"]["Other Ages"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
             <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-30</p>
         </div>
         """, unsafe_allow_html=True)
@@ -250,16 +324,16 @@ with tab1:
     with col2:
         # Funnel chart
         funnel_data = [
-            {'stage': 'Unique User Reach (Ads)', 'value': social_data['Unique Users Reached'], 'percent': 100},
-            {'stage': 'Visitors', 'value': traffic_data['Visitors'], 'percent': traffic_data['Visitors']/social_data['Unique Users Reached']*100},
-            {'stage': 'Registrants', 'value': program_metrics['Registrants']['value'], 'percent': program_metrics['Registrants']['value']/traffic_data['Visitors']*100},
-            {'stage': 'Downloads', 'value': stream_data['Downloads'], 'percent': stream_data['Downloads']/program_metrics['Registrants']['value']*100},
-            {'stage': 'Week 0 Complete', 'value': program_metrics['Completed Week 0']['value'], 'percent': program_metrics['Completed Week 0']['value']/program_metrics['Registrants']['value']*100}
+            {'stage': 'Unique User Reach (Ads)', 'value': data["social_data"]["Unique Users Reached"], 'percent': 100},
+            {'stage': 'Visitors', 'value': data["traffic_data"]["Visitors"], 'percent': data["traffic_data"]["Visitors"]/data["social_data"]["Unique Users Reached"]*100},
+            {'stage': 'Registrants', 'value': data["program_metrics"]["Registrants"]["value"], 'percent': data["program_metrics"]["Registrants"]["value"]/data["traffic_data"]["Visitors"]*100},
+            {'stage': 'Downloads', 'value': data["stream_data"]["Downloads"], 'percent': data["stream_data"]["Downloads"]/data["program_metrics"]["Registrants"]["value"]*100},
+            {'stage': 'Week 0 Complete', 'value': data["program_metrics"]["Completed Week 0"]["value"], 'percent': data["program_metrics"]["Completed Week 0"]["value"]/data["program_metrics"]["Registrants"]["value"]*100}
         ]
         
         funnel_df = pd.DataFrame(funnel_data)
         
-        colors = ['#9333ea', '#3b82f6', '#4f46e5', '#10b981', '#f59e0b']
+        colors = ['#6BBFAE', '#79C7BA', '#87CFC6', '#A4C3DE', '#B9A6CD']
         
         fig = go.Figure(go.Funnel(
             y=funnel_df['stage'],
@@ -272,7 +346,10 @@ with tab1:
         fig.update_layout(
             title="Program Funnel",
             margin=dict(l=20, r=20, t=60, b=20),
-            height=450
+            height=450,
+            font=dict(family="Helvetica Neue, sans-serif", color="#334c5e"),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
         )
         
         st.plotly_chart(fig, use_container_width=True)
@@ -280,11 +357,11 @@ with tab1:
         # Funnel metrics
         cols = st.columns(5)
         funnel_metrics = [
-            {"label": "Unique User Reach", "value": social_data['Unique Users Reached'], "color": "#9333ea"},
-            {"label": "Visitors", "value": traffic_data['Visitors'], "color": "#3b82f6"},
-            {"label": "Registrants", "value": program_metrics['Registrants']['value'], "color": "#4f46e5"},
-            {"label": "Downloads", "value": stream_data['Downloads'], "color": "#10b981"},
-            {"label": "Week 0 Complete", "value": program_metrics['Completed Week 0']['value'], "color": "#f59e0b"}
+            {"label": "Unique User Reach", "value": data["social_data"]["Unique Users Reached"], "color": "#6BBFAE"},
+            {"label": "Visitors", "value": data["traffic_data"]["Visitors"], "color": "#79C7BA"},
+            {"label": "Registrants", "value": data["program_metrics"]["Registrants"]["value"], "color": "#87CFC6"},
+            {"label": "Downloads", "value": data["stream_data"]["Downloads"], "color": "#A4C3DE"},
+            {"label": "Week 0 Complete", "value": data["program_metrics"]["Completed Week 0"]["value"], "color": "#B9A6CD"}
         ]
         
         for i, col in enumerate(cols):
@@ -304,9 +381,9 @@ with tab1:
     with col1:
         # SMS Campaign Chart
         sms_df = pd.DataFrame({
-            'Campaign': list(sms_data.keys()),
-            'Delivered': [item['delivered'] for item in sms_data.values()],
-            'Clicked': [item['clicked'] for item in sms_data.values()]
+            'Campaign': list(data["sms_data"].keys()),
+            'Delivered': [item["delivered"] for item in data["sms_data"].values()],
+            'Clicked': [item["clicked"] for item in data["sms_data"].values()]
         })
         
         fig = px.bar(
@@ -316,19 +393,25 @@ with tab1:
             barmode='group',
             title='SMS Campaign Performance',
             labels={'value': 'Count', 'variable': 'Type'},
-            color_discrete_map={'Delivered': '#8884d8', 'Clicked': '#82ca9d'}
+            color_discrete_map={'Delivered': '#6BBFAE', 'Clicked': '#A4C3DE'}
         )
         
         fig.add_annotation(
             x=0, y=sms_df['Delivered'][0]*1.05,
-            text=f"{sms_data['Week 1 Reminder']['rate']}% click rate",
+            text=f"{data['sms_data']['Week 1 Reminder']['rate']}% click rate",
             showarrow=False
         )
         
         fig.add_annotation(
             x=1, y=sms_df['Delivered'][1]*1.05,
-            text=f"{sms_data['Technical Issue']['rate']}% click rate",
+            text=f"{data['sms_data']['Technical Issue']['rate']}% click rate",
             showarrow=False
+        )
+        
+        fig.update_layout(
+            font=dict(family="Helvetica Neue, sans-serif", color="#334c5e"),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
         )
         
         st.plotly_chart(fig, use_container_width=True)
@@ -339,10 +422,10 @@ with tab1:
         cols = st.columns(2)
         
         social_metrics = [
-            {"label": "Clicks to Site", "value": social_data['Clicks to Site'], "bg": "#dbeafe", "text": "#1e40af"},
-            {"label": "Unique Users Reached", "value": social_data['Unique Users Reached'], "bg": "#dcfce7", "text": "#166534"},
-            {"label": "Impressions Delivered", "value": social_data['Impressions Delivered'], "bg": "#f3e8ff", "text": "#6b21a8"},
-            {"label": "Direct Engagements", "value": social_data['Direct Engagements'], "bg": "#fef9c3", "text": "#854d0e"}
+            {"label": "Clicks to Site", "value": data["social_data"]["Clicks to Site"], "bg": "rgba(106, 191, 174, 0.1)", "text": "#334c5e"},
+            {"label": "Unique Users Reached", "value": data["social_data"]["Unique Users Reached"], "bg": "rgba(164, 195, 222, 0.1)", "text": "#334c5e"},
+            {"label": "Impressions Delivered", "value": data["social_data"]["Impressions Delivered"], "bg": "rgba(185, 166, 205, 0.1)", "text": "#334c5e"},
+            {"label": "Direct Engagements", "value": data["social_data"]["Direct Engagements"], "bg": "rgba(243, 169, 80, 0.1)", "text": "#334c5e"}
         ]
         
         for i, metric in enumerate(social_metrics):
@@ -351,7 +434,7 @@ with tab1:
                 <div class="metric-card" style="background-color: {metric['bg']};">
                     <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
                     <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
-                    {f"<div>{social_data['Direct Engagements']/social_data['Impressions Delivered']*100:.1f}% engagement rate</div>" if metric['label'] == 'Direct Engagements' else ""}
+                    {f"<div>{data['social_data']['Direct Engagements']/data['social_data']['Impressions Delivered']*100:.1f}% engagement rate</div>" if metric['label'] == 'Direct Engagements' else ""}
                 </div>
                 """, unsafe_allow_html=True)
     
@@ -360,9 +443,9 @@ with tab1:
     cols = st.columns(3)
     
     web_metrics = [
-        {"label": "Pageviews", "value": traffic_data['Pageviews'], "bg": "#e0e7ff", "text": "#3730a3"},
-        {"label": "Sessions", "value": traffic_data['Sessions'], "bg": "#dbeafe", "text": "#1e40af"},
-        {"label": "Visitors", "value": traffic_data['Visitors'], "bg": "#ccfbf1", "text": "#0f766e"}
+        {"label": "Pageviews", "value": data["traffic_data"]["Pageviews"], "bg": "rgba(106, 191, 174, 0.1)", "text": "#334c5e"},
+        {"label": "Sessions", "value": data["traffic_data"]["Sessions"], "bg": "rgba(164, 195, 222, 0.1)", "text": "#334c5e"},
+        {"label": "Visitors", "value": data["traffic_data"]["Visitors"], "bg": "rgba(185, 166, 205, 0.1)", "text": "#334c5e"}
     ]
     
     for i, col in enumerate(cols):
@@ -377,8 +460,8 @@ with tab1:
     
     st.markdown(f"""
     <div style="margin-top: 10px;">
-        <p><span style="font-weight: bold;">Pages per Session:</span> {traffic_data['Pageviews']/traffic_data['Sessions']:.1f}</p>
-        <p><span style="font-weight: bold;">Sessions per Visitor:</span> {traffic_data['Sessions']/traffic_data['Visitors']:.1f}</p>
+        <p><span style="font-weight: bold;">Pages per Session:</span> {data["traffic_data"]["Pageviews"]/data["traffic_data"]["Sessions"]:.1f}</p>
+        <p><span style="font-weight: bold;">Sessions per Visitor:</span> {data["traffic_data"]["Sessions"]/data["traffic_data"]["Visitors"]:.1f}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -500,3 +583,324 @@ with tab2:
         </ul>
     </div>
     """, unsafe_allow_html=True)
+
+with tab3:
+    # Data Entry Tab
+    st.markdown('<p class="main-header">Data Entry & Updates</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="insight-container">
+        <p>Use this tab to update the dashboard metrics. Select a data category to update, enter the new values, and save your changes.</p>
+        <p><strong>Note:</strong> All updates will be saved to a local file and will persist between sessions.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Data category selection
+    data_category = st.radio(
+        "Select data category to update:",
+        ["Program Metrics", "KPI Targets", "Demographics", "Traffic & Website", "SMS Campaigns", "Social Media"]
+    )
+    
+    with st.form(key=f"update_{data_category}"):
+        st.markdown(f"<p class='sub-header'>Update {data_category}</p>", unsafe_allow_html=True)
+        
+        if data_category == "Program Metrics":
+            # Program Metrics Form
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                registrants = st.number_input(
+                    "Total Registrants", 
+                    min_value=0, 
+                    value=data["program_metrics"]["Registrants"]["value"]
+                )
+                contacts = st.number_input(
+                    "Total Contacts", 
+                    min_value=0, 
+                    value=data["program_metrics"]["Contacts"]["value"]
+                )
+            
+            with col2:
+                new_contacts = st.number_input(
+                    "NEW Contacts", 
+                    min_value=0, 
+                    value=data["program_metrics"]["NEW Contacts"]["value"]
+                )
+                completed_week0 = st.number_input(
+                    "Completed Week 0", 
+                    min_value=0, 
+                    value=data["program_metrics"]["Completed Week 0"]["value"]
+                )
+            
+            submit_button = st.form_submit_button(label="Update Program Metrics")
+            
+            if submit_button:
+                # Update the data
+                data["program_metrics"]["Registrants"]["value"] = registrants
+                data["program_metrics"]["Contacts"]["value"] = contacts
+                data["program_metrics"]["NEW Contacts"]["value"] = new_contacts
+                data["program_metrics"]["Completed Week 0"]["value"] = completed_week0
+                
+                # Update related KPIs
+                data["kpi_progress"]["Enrollment"]["current"] = registrants
+                data["kpi_progress"]["Enrollment"]["percentage"] = int(registrants / data["kpi_progress"]["Enrollment"]["target"] * 100)
+                data["kpi_progress"]["Week 0 Completion"]["current"] = completed_week0
+                data["kpi_progress"]["Week 0 Completion"]["percentage"] = int(completed_week0 / data["kpi_progress"]["Week 0 Completion"]["target"] * 100)
+                
+                # Update status
+                data["kpi_progress"]["Enrollment"]["status"] = "Achieved" if data["kpi_progress"]["Enrollment"]["percentage"] >= 100 else "Behind" if data["kpi_progress"]["Enrollment"]["percentage"] >= 25 else "At Risk"
+                data["kpi_progress"]["Week 0 Completion"]["status"] = "Achieved" if data["kpi_progress"]["Week 0 Completion"]["percentage"] >= 100 else "Behind" if data["kpi_progress"]["Week 0 Completion"]["percentage"] >= 25 else "At Risk"
+                
+                data = save_data(data)
+                st.success("Program metrics updated successfully!")
+        
+        elif data_category == "KPI Targets":
+            # KPI Targets Form
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                enrollment_target = st.number_input(
+                    "Enrollment Target", 
+                    min_value=1000, 
+                    value=data["kpi_progress"]["Enrollment"]["target"]
+                )
+                age_target = st.number_input(
+                    "18-30 Enrollment Target", 
+                    min_value=100, 
+                    value=data["kpi_progress"]["18-30 Enrollment"]["target"]
+                )
+            
+            with col2:
+                completion_target = st.number_input(
+                    "Week 0 Completion Target", 
+                    min_value=1000, 
+                    value=data["kpi_progress"]["Week 0 Completion"]["target"]
+                )
+                traffic_target = st.number_input(
+                    "Site Traffic Target", 
+                    min_value=10000, 
+                    value=data["kpi_progress"]["Site Traffic"]["target"]
+                )
+            
+            submit_button = st.form_submit_button(label="Update KPI Targets")
+            
+            if submit_button:
+                # Update the data
+                data["kpi_progress"]["Enrollment"]["target"] = enrollment_target
+                data["kpi_progress"]["18-30 Enrollment"]["target"] = age_target
+                data["kpi_progress"]["Week 0 Completion"]["target"] = completion_target
+                data["kpi_progress"]["Site Traffic"]["target"] = traffic_target
+                
+                # Update percentages
+                data["kpi_progress"]["Enrollment"]["percentage"] = int(data["kpi_progress"]["Enrollment"]["current"] / enrollment_target * 100)
+                data["kpi_progress"]["18-30 Enrollment"]["percentage"] = int(data["kpi_progress"]["18-30 Enrollment"]["current"] / age_target * 100)
+                data["kpi_progress"]["Week 0 Completion"]["percentage"] = int(data["kpi_progress"]["Week 0 Completion"]["current"] / completion_target * 100)
+                data["kpi_progress"]["Site Traffic"]["percentage"] = int(data["traffic_data"]["Visitors"] / traffic_target * 100)
+                
+                # Update status
+                for key in data["kpi_progress"]:
+                    data["kpi_progress"][key]["status"] = "Achieved" if data["kpi_progress"][key]["percentage"] >= 100 else "Behind" if data["kpi_progress"][key]["percentage"] >= 25 else "At Risk"
+                
+                data = save_data(data)
+                st.success("KPI targets updated successfully!")
+        
+        elif data_category == "Demographics":
+            # Demographics Form
+            col1, col2 = st.columns(2)
+            
+            total_age_contacts = data["age_data"]["18-30"]["value"] + data["age_data"]["Other Ages"]["value"]
+            
+            with col1:
+                age_18_30 = st.number_input(
+                    "18-30 Age Demographic", 
+                    min_value=0, 
+                    value=data["age_data"]["18-30"]["value"]
+                )
+            
+            with col2:
+                other_ages = st.number_input(
+                    "Other Ages Demographic", 
+                    min_value=0, 
+                    value=data["age_data"]["Other Ages"]["value"]
+                )
+            
+            submit_button = st.form_submit_button(label="Update Demographics")
+            
+            if submit_button:
+                # Update the data
+                data["age_data"]["18-30"]["value"] = age_18_30
+                data["age_data"]["Other Ages"]["value"] = other_ages
+                
+                # Update 18-30 KPI
+                data["kpi_progress"]["18-30 Enrollment"]["current"] = age_18_30
+                data["kpi_progress"]["18-30 Enrollment"]["percentage"] = int(age_18_30 / data["kpi_progress"]["18-30 Enrollment"]["target"] * 100)
+                data["kpi_progress"]["18-30 Enrollment"]["status"] = "Achieved" if data["kpi_progress"]["18-30 Enrollment"]["percentage"] >= 100 else "Behind" if data["kpi_progress"]["18-30 Enrollment"]["percentage"] >= 25 else "At Risk"
+                
+                data = save_data(data)
+                st.success("Demographics updated successfully!")
+        
+        elif data_category == "Traffic & Website":
+            # Traffic & Website Form
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                visitors = st.number_input(
+                    "Visitors", 
+                    min_value=0, 
+                    value=data["traffic_data"]["Visitors"]
+                )
+                sessions = st.number_input(
+                    "Sessions", 
+                    min_value=0, 
+                    value=data["traffic_data"]["Sessions"]
+                )
+            
+            with col2:
+                pageviews = st.number_input(
+                    "Pageviews", 
+                    min_value=0, 
+                    value=data["traffic_data"]["Pageviews"]
+                )
+                downloads = st.number_input(
+                    "Downloads", 
+                    min_value=0, 
+                    value=data["stream_data"]["Downloads"]
+                )
+            
+            submit_button = st.form_submit_button(label="Update Traffic Data")
+            
+            if submit_button:
+                # Update the data
+                data["traffic_data"]["Visitors"] = visitors
+                data["traffic_data"]["Sessions"] = sessions
+                data["traffic_data"]["Pageviews"] = pageviews
+                data["stream_data"]["Downloads"] = downloads
+                
+                # Update Site Traffic KPI
+                data["kpi_progress"]["Site Traffic"]["percentage"] = int(visitors / data["kpi_progress"]["Site Traffic"]["target"] * 100)
+                data["kpi_progress"]["Site Traffic"]["status"] = "Achieved" if data["kpi_progress"]["Site Traffic"]["percentage"] >= 100 else "Behind" if data["kpi_progress"]["Site Traffic"]["percentage"] >= 25 else "At Risk"
+                
+                data = save_data(data)
+                st.success("Traffic data updated successfully!")
+        
+        elif data_category == "SMS Campaigns":
+            # SMS Campaigns Form
+            campaign_name = st.selectbox(
+                "SMS Campaign", 
+                options=list(data["sms_data"].keys())
+            )
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                delivered = st.number_input(
+                    "SMS Delivered", 
+                    min_value=0, 
+                    value=data["sms_data"][campaign_name]["delivered"]
+                )
+            
+            with col2:
+                clicked = st.number_input(
+                    "SMS Clicked", 
+                    min_value=0, 
+                    max_value=delivered,
+                    value=min(data["sms_data"][campaign_name]["clicked"], delivered)
+                )
+            
+            # Calculate rate
+            if delivered > 0:
+                rate = round(clicked / delivered * 100, 1)
+            else:
+                rate = 0
+            
+            st.markdown(f"<p>Click Rate: <strong>{rate}%</strong></p>", unsafe_allow_html=True)
+            
+            submit_button = st.form_submit_button(label="Update SMS Campaign")
+            
+            if submit_button:
+                # Update the data
+                data["sms_data"][campaign_name]["delivered"] = delivered
+                data["sms_data"][campaign_name]["clicked"] = clicked
+                data["sms_data"][campaign_name]["rate"] = rate
+                
+                data = save_data(data)
+                st.success(f"SMS campaign '{campaign_name}' updated successfully!")
+        
+        elif data_category == "Social Media":
+            # Social Media Form
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                clicks = st.number_input(
+                    "Clicks to Site", 
+                    min_value=0, 
+                    value=data["social_data"]["Clicks to Site"]
+                )
+                users = st.number_input(
+                    "Unique Users Reached", 
+                    min_value=0, 
+                    value=data["social_data"]["Unique Users Reached"]
+                )
+            
+            with col2:
+                impressions = st.number_input(
+                    "Impressions Delivered", 
+                    min_value=0, 
+                    value=data["social_data"]["Impressions Delivered"]
+                )
+                engagements = st.number_input(
+                    "Direct Engagements", 
+                    min_value=0, 
+                    value=data["social_data"]["Direct Engagements"]
+                )
+            
+            submit_button = st.form_submit_button(label="Update Social Media Data")
+            
+            if submit_button:
+                # Update the data
+                data["social_data"]["Clicks to Site"] = clicks
+                data["social_data"]["Unique Users Reached"] = users
+                data["social_data"]["Impressions Delivered"] = impressions
+                data["social_data"]["Direct Engagements"] = engagements
+                
+                data = save_data(data)
+                st.success("Social media data updated successfully!")
+    
+    # Add New Campaign Section
+    st.markdown('<p class="sub-header">Add New SMS Campaign</p>', unsafe_allow_html=True)
+    
+    with st.form(key="add_sms_campaign"):
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            new_campaign_name = st.text_input("Campaign Name")
+        
+        with col2:
+            new_delivered = st.number_input("SMS Delivered", min_value=0, value=0)
+        
+        with col3:
+            new_clicked = st.number_input(
+                "SMS Clicked", 
+                min_value=0, 
+                max_value=new_delivered,
+                value=0
+            )
+        
+        # Calculate rate
+        if new_delivered > 0:
+            new_rate = round(new_clicked / new_delivered * 100, 1)
+        else:
+            new_rate = 0
+        
+        submit_button = st.form_submit_button(label="Add New SMS Campaign")
+        
+        if submit_button:
+            if new_campaign_name and new_campaign_name not in data["sms_data"]:
+                # Add new campaign
+                data["sms_data"][new_campaign_name] = {
+                    "delivered": new_delivered,
+                    "clicked": new_clicked,
+                    "rate": new_rate
+                }
+                
+                data = save_data(data)
+                st.success(f"New SMS campaign '{new_campaign_name}' added successfully!")
