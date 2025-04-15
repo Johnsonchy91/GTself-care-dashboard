@@ -9,8 +9,8 @@ from datetime import datetime
 
 # Set page configuration
 st.set_page_config(
-    page_title="Self-Care School Dashboard",
-    page_icon="🧘‍♀️",
+    page_title="GirlTREK | Self-Care School Dashboard",
+    page_icon="",
     layout="wide"
 )
 
