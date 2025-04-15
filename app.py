@@ -361,8 +361,8 @@ with tab1:
         
         st.markdown(f"""
         <div style="text-align: center;">
-            <p><span style="color: #30BCAA; font-weight: bold;">18-30:</span> {data["age_data"]["18-30"]["value"]} contacts ({data["age_data"]["18-30"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
-            <p><span style="color: #5E9FE0; font-weight: bold;">Other Ages:</span> {data["age_data"]["Other Ages"]["value"]} contacts ({data["age_data"]["Other Ages"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
+            <p><span style="color: #5e86d7; font-weight: bold;">18-30:</span> {data["age_data"]["18-30"]["value"]} contacts ({data["age_data"]["18-30"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
+            <p><span style="color: #4fb96e; font-weight: bold;">Other Ages:</span> {data["age_data"]["Other Ages"]["value"]} contacts ({data["age_data"]["Other Ages"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
             <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-30</p>
         </div>
         """, unsafe_allow_html=True)Other Ages"]["value"])*100:.1f}%)</p>
