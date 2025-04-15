@@ -308,7 +308,7 @@ with tab1:
     st.markdown(f'Latest data as of {data["last_updated"]}')
     
     # Top metrics
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown(f"""
@@ -321,21 +321,13 @@ with tab1:
     
     with col2:
         st.markdown(f"""
-        <div class="metric-card metric-card-green">
-            <div class="metric-label">Total Contacts</div>
-            <div class="metric-value">{data["program_metrics"]["Contacts"]["value"]:,}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown(f"""
         <div class="metric-card metric-card-yellow">
             <div class="metric-label">Site Visitors</div>
             <div class="metric-value">{data["traffic_data"]["Visitors"]:,}</div>
         </div>
         """, unsafe_allow_html=True)
     
-    with col4:
+    with col3:
         st.markdown(f"""
         <div class="metric-card metric-card-orange">
             <div class="metric-label">Week 0 Completed</div>
