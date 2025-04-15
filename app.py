@@ -659,7 +659,7 @@ with tab2:
     """, unsafe_allow_html=True)
     
     # Priority 2
-    st.markdown('<p class="sub-header">Priority 3: Marketing Funnel Optimization</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">Priority 2: Marketing Funnel Optimization</p>', unsafe_allow_html=True)
     st.markdown("""
     <div class="chart-container">
         <ul>
