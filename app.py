@@ -300,7 +300,7 @@ def save_data(data):
 data = load_data()
 
 # Create tabs
-tab1, tab2 = st.tabs(["📊 Dashboard", "✏️ Data Entry"])
+tab1, tab2 = st.tabs(["📊 Dashboard", "✏️ Data Analysis and Data Entry"])
 
 with tab1:
     # Dashboard Header
