@@ -658,7 +658,7 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
     
-    # Priority 3
+    # Priority 2
     st.markdown('<p class="sub-header">Priority 3: Marketing Funnel Optimization</p>', unsafe_allow_html=True)
     st.markdown("""
     <div class="chart-container">
@@ -670,23 +670,6 @@ with tab2:
         </ul>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Implementation Timeline
-    st.markdown('<p class="sub-header">Implementation Timeline</p>', unsafe_allow_html=True)
-    
-    timeline_data = pd.DataFrame([
-        {"Recommendation": "Youth-targeted ad campaigns (TikTok, Instagram)", "Timeframe": "Immediate (1-2 weeks)", "Expected Impact": "High - Direct impact on 18-30 recruitment"},
-        {"Recommendation": "Re-engagement SMS for incomplete registrants", "Timeframe": "Immediate (1 week)", "Expected Impact": "High - Could recover 10-20% of drop-offs"},
-        {"Recommendation": "Youth Ambassador Program", "Timeframe": "Short-term (2-4 weeks)", "Expected Impact": "Medium - Builds organic growth in target demographic"},
-        {"Recommendation": "Onboarding Optimization", "Timeframe": "Short-term (2-3 weeks)", "Expected Impact": "High - Could improve completion rates by 15-25%"},
-        {"Recommendation": "Ad Creative A/B Testing", "Timeframe": "Short-term (2-3 weeks)", "Expected Impact": "Medium - Potential to increase CTR by 3-5%"},
-        {"Recommendation": "College Campus Partnerships", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "High - Targeted access to 18-30 demographic"},
-        {"Recommendation": "Milestone Recognition System", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "Medium - Increases sustained engagement"}
-    ])
-    
-    st.markdown('<div class="chart-container" style="padding: 0;">', unsafe_allow_html=True)
-    st.dataframe(timeline_data, use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
     
 with tab2:
     # Data Entry Tab
