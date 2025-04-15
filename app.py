@@ -14,6 +14,15 @@ st.set_page_config(
     layout="wide"
 )
 
+# Set the background to white
+st.markdown("""
+<style>
+    .stApp {
+        background-color: white;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Self Care School brand colors
 # Main palette based on the website
 # Primary: Soft teal (#6BBFAE)
@@ -308,8 +317,8 @@ with tab1:
         fig.update_traces(textinfo='percent+label')
         fig.update_layout(
             font=dict(family="Helvetica Neue, sans-serif", color="#334c5e"),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
+            paper_bgcolor='white',
+            plot_bgcolor='white'
         )
         st.plotly_chart(fig, use_container_width=True)
         
@@ -348,8 +357,8 @@ with tab1:
             margin=dict(l=20, r=20, t=60, b=20),
             height=450,
             font=dict(family="Helvetica Neue, sans-serif", color="#334c5e"),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
+            paper_bgcolor='white',
+            plot_bgcolor='white'
         )
         
         st.plotly_chart(fig, use_container_width=True)
@@ -410,8 +419,8 @@ with tab1:
         
         fig.update_layout(
             font=dict(family="Helvetica Neue, sans-serif", color="#334c5e"),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
+            paper_bgcolor='white',
+            plot_bgcolor='white'
         )
         
         st.plotly_chart(fig, use_container_width=True)
