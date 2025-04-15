@@ -20,6 +20,27 @@ st.markdown("""
     .stApp {
         background-color: white;
     }
+    div[data-testid="stHeader"] {
+        background-color: white;
+        display: none;
+    }
+    .main .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        max-width: 95%;
+    }
+    section[data-testid="stSidebar"] {
+        display: none;
+    }
+    div[data-testid="stToolbar"] {
+        display: none;
+    }
+    .css-1dp5vir {
+        background-color: white;
+    }
+    footer {
+        display: none;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -175,14 +196,14 @@ def load_data():
         # Default data if file doesn't exist or is corrupted
         return {
             'program_metrics': {
-                'Registrants': {'value': 10595, 'target': 10000, 'color': '#30BCAA'},
-                'Contacts': {'value': 3938, 'target': None, 'color': '#5E9FE0'},
-                'NEW Contacts': {'value': 229, 'target': None, 'color': '#A57CD8'},
-                'Completed Week 0': {'value': 1983, 'target': None, 'color': '#FF9A4D'}
+                'Registrants': {'value': 10595, 'target': 10000, 'color': '#5a49a3'},
+                'Contacts': {'value': 3938, 'target': None, 'color': '#4fb96e'},
+                'NEW Contacts': {'value': 229, 'target': None, 'color': '#5e86d7'},
+                'Completed Week 0': {'value': 1983, 'target': None, 'color': '#f5c759'}
             },
             'age_data': {
-                '18-30': {'value': 229, 'color': '#30BCAA'},
-                'Other Ages': {'value': 3709, 'color': '#5E9FE0'}
+                '18-30': {'value': 229, 'color': '#5e86d7'},
+                'Other Ages': {'value': 3709, 'color': '#4fb96e'}
             },
             'sms_data': {
                 'Week 1 Reminder': {'delivered': 82337, 'clicked': 7285, 'rate': 9},
@@ -231,36 +252,44 @@ with tab1:
     st.markdown(f'Latest data as of {data["last_updated"]}')
     
     # Top metrics
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: rgba(48, 188, 170, 0.1);">
+        <div class="metric-card metric-card-blue">
             <div class="metric-label">Registrants</div>
             <div class="metric-value">{data["program_metrics"]["Registrants"]["value"]:,}</div>
-            <div>Target: {data["program_metrics"]["Registrants"]["target"]:,}</div>
+            <div class="metric-sublabel">Target: {data["program_metrics"]["Registrants"]["target"]:,}</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: rgba(94, 159, 224, 0.1);">
-            <div class="metric-label">Visitors</div>
-            <div class="metric-value">{data["traffic_data"]["Visitors"]:,}</div>
+        <div class="metric-card metric-card-green">
+            <div class="metric-label">Total Contacts</div>
+            <div class="metric-value">{data["program_metrics"]["Contacts"]["value"]:,}</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: rgba(165, 124, 216, 0.1);">
+        <div class="metric-card metric-card-yellow">
+            <div class="metric-label">Site Visitors</div>
+            <div class="metric-value">{data["traffic_data"]["Visitors"]:,}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown(f"""
+        <div class="metric-card metric-card-orange">
             <div class="metric-label">Week 0 Completed</div>
             <div class="metric-value">{data["program_metrics"]["Completed Week 0"]["value"]:,}</div>
-            <div>{data["program_metrics"]["Completed Week 0"]["value"] / data["program_metrics"]["Registrants"]["value"] * 100:.1f}% of registrants</div>
+            <div class="metric-percentage">{data["program_metrics"]["Completed Week 0"]["value"] / data["program_metrics"]["Registrants"]["value"] * 100:.1f}% of registrants</div>
         </div>
         """, unsafe_allow_html=True)
     
     # KPI Progress & Analysis
-    st.markdown('<p class="sub-header">KPI Progress & Analysis</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">KPI Summary & Analysis</p>', unsafe_allow_html=True)
     
     # Create progress bars
     for key, item in data["kpi_progress"].items():
@@ -275,8 +304,16 @@ with tab1:
                 progress = min(item["percentage"], 100)
                 progress_text = f"{item['current']:,} / {item['target']:,} ({item['percentage']}%)"
             
-            progress_color = "#30BCAA" if item["status"] == "Achieved" else "#5E9FE0" if item["status"] == "Behind" else "#A57CD8"
-            st.progress(progress/100, progress_color)
+            # Use HTML/CSS for better looking progress bars
+            progress_color = "#4fb96e" if item["status"] == "Achieved" else "#f5c759" if item["status"] == "Behind" else "#f27370"
+            
+            st.markdown(f"""
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {progress}%; background-color: {progress_color};"></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         with col3:
             status_class = f"status-{item['status'].lower().replace(' ', '-')}"
             st.markdown(f"{progress_text} <span class='{status_class}'>{item['status']}</span>", unsafe_allow_html=True)
@@ -325,6 +362,10 @@ with tab1:
         st.markdown(f"""
         <div style="text-align: center;">
             <p><span style="color: #30BCAA; font-weight: bold;">18-30:</span> {data["age_data"]["18-30"]["value"]} contacts ({data["age_data"]["18-30"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
+            <p><span style="color: #5E9FE0; font-weight: bold;">Other Ages:</span> {data["age_data"]["Other Ages"]["value"]} contacts ({data["age_data"]["Other Ages"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
+            <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-30</p>
+        </div>
+        """, unsafe_allow_html=True)Other Ages"]["value"])*100:.1f}%)</p>
             <p><span style="color: #5E9FE0; font-weight: bold;">Other Ages:</span> {data["age_data"]["Other Ages"]["value"]} contacts ({data["age_data"]["Other Ages"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
             <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-30</p>
         </div>
@@ -481,7 +522,7 @@ with tab2:
     # Overall Program Performance
     st.markdown('<p class="sub-header">Overall Program Performance</p>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="insight-container">
+    <div class="chart-container">
         <ul>
             <li><span style="font-weight: bold;">Strong Initial Recruitment:</span> With 10,595 registrants, the program has exceeded its target of 10,000 participants ahead of schedule.</li>
             <li><span style="font-weight: bold;">Concerning Drop-off Rate:</span> Only 18.7% of registrants (1,983) have completed Week 0, indicating significant early attrition.</li>
@@ -503,12 +544,14 @@ with tab2:
         {"Funnel Stage": "Week 0 Complete", "Count": 1983, "Conversion Rate": "18.7% of registrants", "Analysis": "Low completion rate, significant drop-off"}
     ])
     
+    st.markdown('<div class="chart-container" style="padding: 0;">', unsafe_allow_html=True)
     st.dataframe(funnel_analysis, use_container_width=True, hide_index=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # SMS Campaign Effectiveness
     st.markdown('<p class="sub-header">SMS Campaign Effectiveness</p>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="insight-container">
+    <div class="chart-container">
         <p>Both SMS campaigns are performing well with click rates of 9.0% and 9.9%, above industry average of 4-5%.</p>
         <p>The "Technical Issue Solve" message performed slightly better, suggesting users respond well to problem-solving content.</p>
     </div>
@@ -517,7 +560,7 @@ with tab2:
     # Age Demographics Challenge
     st.markdown('<p class="sub-header">Age Demographics Challenge</p>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="insight-container">
+    <div class="chart-container">
         <p>Only 229 contacts (5.8% of total) are in the 18-30 age bracket, significantly below the 50% target.</p>
         <p>This represents the most critical gap in program KPIs and requires immediate strategic intervention.</p>
     </div>
@@ -529,7 +572,7 @@ with tab2:
     # Priority 1
     st.markdown('<p class="sub-header">Priority 1: Youth Engagement Strategy</p>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="insight-container">
+    <div class="chart-container">
         <ul>
             <li><span style="font-weight: bold;">Platform-Specific Campaigns:</span> Shift marketing budget toward platforms with higher 18-30 demographic penetration (TikTok, Instagram Reels).</li>
             <li><span style="font-weight: bold;">Youth Ambassador Program:</span> Recruit current 18-30 participants as program ambassadors with incentives for referrals.</li>
@@ -542,7 +585,7 @@ with tab2:
     # Priority 2
     st.markdown('<p class="sub-header">Priority 2: Completion Rate Improvement</p>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="insight-container">
+    <div class="chart-container">
         <ul>
             <li><span style="font-weight: bold;">Onboarding Optimization:</span> Redesign the first-time user experience to increase immediate engagement.</li>
             <li><span style="font-weight: bold;">Milestone Recognition:</span> Implement more frequent achievement markers and digital badges.</li>
@@ -555,7 +598,7 @@ with tab2:
     # Priority 3
     st.markdown('<p class="sub-header">Priority 3: Marketing Funnel Optimization</p>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="insight-container">
+    <div class="chart-container">
         <ul>
             <li><span style="font-weight: bold;">Ad Creative Testing:</span> Conduct A/B testing on ad creative to improve the 16% click-through rate from ads to site.</li>
             <li><span style="font-weight: bold;">Download Prompts:</span> Add strategic download prompts during registration and in follow-up communications.</li>
@@ -574,6 +617,46 @@ with tab2:
         {"Recommendation": "Youth Ambassador Program", "Timeframe": "Short-term (2-4 weeks)", "Expected Impact": "Medium - Builds organic growth in target demographic"},
         {"Recommendation": "Onboarding Optimization", "Timeframe": "Short-term (2-3 weeks)", "Expected Impact": "High - Could improve completion rates by 15-25%"},
         {"Recommendation": "Ad Creative A/B Testing", "Timeframe": "Short-term (2-3 weeks)", "Expected Impact": "Medium - Potential to increase CTR by 3-5%"},
+        {"Recommendation": "College Campus Partnerships", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "High - Targeted access to 18-30 demographic"},
+        {"Recommendation": "Milestone Recognition System", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "Medium - Increases sustained engagement"}
+    ])
+    
+    st.markdown('<div class="chart-container" style="padding: 0;">', unsafe_allow_html=True)
+    st.dataframe(timeline_data, use_container_width=True, hide_index=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # KPI Forecast
+    st.markdown('<p class="sub-header">KPI Forecast with Recommended Actions</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="chart-container">
+        <ul>
+            <li><span style="font-weight: bold;">18-30 Enrollment:</span> With dedicated youth campaigns, potential to reach 30-35% by program end (vs. 50% target).</li>
+            <li><span style="font-weight: bold;">Week 0 Completion:</span> Re-engagement strategies could bring completion to 40-45% of registrants (4,200-4,700 participants).</li>
+            <li><span style="font-weight: bold;">Site Traffic:</span> Optimized ad campaigns could increase visitors by 150-200% over the next 2 months.</li>
+            <li><span style="font-weight: bold;">Program Completion:</span> With enhanced engagement strategies, expect 25-30% of starting registrants to complete all 10 weeks.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)R by 3-5%"},
+        {"Recommendation": "College Campus Partnerships", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "High - Targeted access to 18-30 demographic"},
+        {"Recommendation": "Milestone Recognition System", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "Medium - Increases sustained engagement"}
+    ])
+    
+    st.markdown('<div class="chart-container" style="padding: 0;">', unsafe_allow_html=True)
+    st.dataframe(timeline_data, use_container_width=True, hide_index=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # KPI Forecast
+    st.markdown('<p class="sub-header">KPI Forecast with Recommended Actions</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="chart-container">
+        <ul>
+            <li><span style="font-weight: bold;">18-30 Enrollment:</span> With dedicated youth campaigns, potential to reach 30-35% by program end (vs. 50% target).</li>
+            <li><span style="font-weight: bold;">Week 0 Completion:</span> Re-engagement strategies could bring completion to 40-45% of registrants (4,200-4,700 participants).</li>
+            <li><span style="font-weight: bold;">Site Traffic:</span> Optimized ad campaigns could increase visitors by 150-200% over the next 2 months.</li>
+            <li><span style="font-weight: bold;">Program Completion:</span> With enhanced engagement strategies, expect 25-30% of starting registrants to complete all 10 weeks.</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)R by 3-5%"},
         {"Recommendation": "College Campus Partnerships", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "High - Targeted access to 18-30 demographic"},
         {"Recommendation": "Milestone Recognition System", "Timeframe": "Medium-term (1-2 months)", "Expected Impact": "Medium - Increases sustained engagement"}
     ])
@@ -597,7 +680,7 @@ with tab3:
     # Data Entry Tab
     st.markdown('<p class="main-header">Data Entry & Updates</p>', unsafe_allow_html=True)
     st.markdown("""
-    <div class="insight-container">
+    <div class="chart-container">
         <p>Use this tab to update the dashboard metrics. Select a data category to update, enter the new values, and save your changes.</p>
         <p><strong>Note:</strong> All updates will be saved to a local file and will persist between sessions.</p>
     </div>
@@ -821,7 +904,11 @@ with tab3:
             else:
                 rate = 0
             
-            st.markdown(f"<p>Click Rate: <strong>{rate}%</strong></p>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: center;">
+                <p style="margin: 0;"><span style="font-weight: bold;">Click Rate:</span> <span style="color: #5a49a3; font-weight: bold; font-size: 1.2rem;">{rate}%</span></p>
+            </div>
+            """, unsafe_allow_html=True)
             
             submit_button = st.form_submit_button(label="Update SMS Campaign")
             
@@ -848,6 +935,109 @@ with tab3:
                     "Unique Users Reached", 
                     min_value=0, 
                     value=data["social_data"]["Unique Users Reached"]
+                )
+            
+            with col2:
+                impressions = st.number_input(
+                    "Impressions Delivered", 
+                    min_value=0, 
+                    value=data["social_data"]["Impressions Delivered"]
+                )
+                engagements = st.number_input(
+                    "Direct Engagements", 
+                    min_value=0, 
+                    value=data["social_data"]["Direct Engagements"]
+                )
+            
+            submit_button = st.form_submit_button(label="Update Social Media Data")
+            
+            if submit_button:
+                # Update the data
+                data["social_data"]["Clicks to Site"] = clicks
+                data["social_data"]["Unique Users Reached"] = users
+                data["social_data"]["Impressions Delivered"] = impressions
+                data["social_data"]["Direct Engagements"] = engagements
+                
+                data = save_data(data)
+                st.success("Social media data updated successfully!")
+        st.markdown('</div>', unsafe_allow_html=True)"]["Unique Users Reached"]
+                )
+            
+            with col2:
+                impressions = st.number_input(
+                    "Impressions Delivered", 
+                    min_value=0, 
+                    value=data["social_data"]["Impressions Delivered"]
+                )
+                engagements = st.number_input(
+                    "Direct Engagements", 
+                    min_value=0, 
+                    value=data["social_data"]["Direct Engagements"]
+                )
+            
+            submit_button = st.form_submit_button(label="Update Social Media Data")
+            
+            if submit_button:
+                # Update the data
+                data["social_data"]["Clicks to Site"] = clicks
+                data["social_data"]["Unique Users Reached"] = users
+                data["social_data"]["Impressions Delivered"] = impressions
+                data["social_data"]["Direct Engagements"] = engagements
+                
+                data = save_data(data)
+                st.success("Social media data updated successfully!")
+    
+    # Add New Campaign Section
+    st.markdown('<p class="sub-header">Add New SMS Campaign</p>', unsafe_allow_html=True)
+    
+    with st.form(key="add_sms_campaign"):
+        st.markdown('<div class="chart-container" style="padding: 15px 0;">', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            new_campaign_name = st.text_input("Campaign Name")
+        
+        with col2:
+            new_delivered = st.number_input("SMS Delivered", min_value=0, value=0)
+        
+        with col3:
+            new_clicked = st.number_input(
+                "SMS Clicked", 
+                min_value=0, 
+                max_value=new_delivered,
+                value=0
+            )
+        
+        # Calculate rate
+        if new_delivered > 0:
+            new_rate = round(new_clicked / new_delivered * 100, 1)
+        else:
+            new_rate = 0
+        
+        st.markdown(f"""
+        <div style="margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: center;">
+            <p style="margin: 0;"><span style="font-weight: bold;">Projected Click Rate:</span> <span style="color: #5a49a3; font-weight: bold; font-size: 1.2rem;">{new_rate}%</span></p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        submit_button = st.form_submit_button(label="Add New SMS Campaign")
+        
+        if submit_button:
+            if new_campaign_name and new_campaign_name not in data["sms_data"]:
+                # Add new campaign
+                data["sms_data"][new_campaign_name] = {
+                    "delivered": new_delivered,
+                    "clicked": new_clicked,
+                    "rate": new_rate
+                }
+                
+                data = save_data(data)
+                st.success(f"New SMS campaign '{new_campaign_name}' added successfully!")
+            elif not new_campaign_name:
+                st.error("Please enter a campaign name.")
+            else:
+                st.error(f"Campaign '{new_campaign_name}' already exists. Please use a unique name.")
+        st.markdown('</div>', unsafe_allow_html=True)"]["Unique Users Reached"]
                 )
             
             with col2:
