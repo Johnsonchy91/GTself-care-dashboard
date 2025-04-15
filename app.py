@@ -175,14 +175,14 @@ def load_data():
         # Default data if file doesn't exist or is corrupted
         return {
             'program_metrics': {
-                'Registrants': {'value': 10595, 'target': 10000, 'color': '#6BBFAE'},
-                'Contacts': {'value': 3938, 'target': None, 'color': '#A4C3DE'},
-                'NEW Contacts': {'value': 229, 'target': None, 'color': '#B9A6CD'},
-                'Completed Week 0': {'value': 1983, 'target': None, 'color': '#F3A950'}
+                'Registrants': {'value': 10595, 'target': 10000, 'color': '#30BCAA'},
+                'Contacts': {'value': 3938, 'target': None, 'color': '#5E9FE0'},
+                'NEW Contacts': {'value': 229, 'target': None, 'color': '#A57CD8'},
+                'Completed Week 0': {'value': 1983, 'target': None, 'color': '#FF9A4D'}
             },
             'age_data': {
-                '18-30': {'value': 229, 'color': '#6BBFAE'},
-                'Other Ages': {'value': 3709, 'color': '#A4C3DE'}
+                '18-30': {'value': 229, 'color': '#30BCAA'},
+                'Other Ages': {'value': 3709, 'color': '#5E9FE0'}
             },
             'sms_data': {
                 'Week 1 Reminder': {'delivered': 82337, 'clicked': 7285, 'rate': 9},
@@ -235,7 +235,7 @@ with tab1:
     
     with col1:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: rgba(106, 191, 174, 0.1);">
+        <div class="metric-card" style="background-color: rgba(48, 188, 170, 0.1);">
             <div class="metric-label">Registrants</div>
             <div class="metric-value">{data["program_metrics"]["Registrants"]["value"]:,}</div>
             <div>Target: {data["program_metrics"]["Registrants"]["target"]:,}</div>
@@ -244,7 +244,7 @@ with tab1:
     
     with col2:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: rgba(164, 195, 222, 0.1);">
+        <div class="metric-card" style="background-color: rgba(94, 159, 224, 0.1);">
             <div class="metric-label">Visitors</div>
             <div class="metric-value">{data["traffic_data"]["Visitors"]:,}</div>
         </div>
@@ -252,7 +252,7 @@ with tab1:
     
     with col3:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: rgba(185, 166, 205, 0.1);">
+        <div class="metric-card" style="background-color: rgba(165, 124, 216, 0.1);">
             <div class="metric-label">Week 0 Completed</div>
             <div class="metric-value">{data["program_metrics"]["Completed Week 0"]["value"]:,}</div>
             <div>{data["program_metrics"]["Completed Week 0"]["value"] / data["program_metrics"]["Registrants"]["value"] * 100:.1f}% of registrants</div>
@@ -275,7 +275,7 @@ with tab1:
                 progress = min(item["percentage"], 100)
                 progress_text = f"{item['current']:,} / {item['target']:,} ({item['percentage']}%)"
             
-            progress_color = "#6BBFAE" if item["status"] == "Achieved" else "#A4C3DE" if item["status"] == "Behind" else "#B9A6CD"
+            progress_color = "#30BCAA" if item["status"] == "Achieved" else "#5E9FE0" if item["status"] == "Behind" else "#A57CD8"
             st.progress(progress/100, progress_color)
         with col3:
             status_class = f"status-{item['status'].lower().replace(' ', '-')}"
@@ -286,10 +286,10 @@ with tab1:
     <div class="insight-container">
         <h3>Key Insights:</h3>
         <ul>
-            <li style="color: #3b8177;"><strong>Enrollment target already exceeded (106% of goal)</strong> - <span class="status-achieved">Achieved</span></li>
-            <li style="color: #7e6a91;"><strong>18-30 demographic severely underrepresented (5% of target)</strong> - <span class="status-at-risk">At Risk</span></li>
-            <li style="color: #5882a9;"><strong>Program completion rates need improvement (20% of target)</strong> - <span class="status-behind">Behind</span></li>
-            <li style="color: #5882a9;"><strong>Site traffic currently at 7% of target (16.3K vs 250K)</strong> - <span class="status-behind">Behind</span></li>
+            <li style="color: #0A8F80;"><strong>Enrollment target already exceeded (106% of goal)</strong> - <span class="status-achieved">Achieved</span></li>
+            <li style="color: #6B43A9;"><strong>18-30 demographic severely underrepresented (5% of target)</strong> - <span class="status-at-risk">At Risk</span></li>
+            <li style="color: #2C6DB0;"><strong>Program completion rates need improvement (20% of target)</strong> - <span class="status-behind">Behind</span></li>
+            <li style="color: #2C6DB0;"><strong>Site traffic currently at 7% of target (16.3K vs 250K)</strong> - <span class="status-behind">Behind</span></li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
@@ -311,7 +311,7 @@ with tab1:
             values='Value', 
             names='Age Group',
             color='Age Group',
-            color_discrete_map={'18-30': '#6BBFAE', 'Other Ages': '#A4C3DE'},
+            color_discrete_map={'18-30': '#30BCAA', 'Other Ages': '#5E9FE0'},
             title="Age Demographics (Contacts)"
         )
         fig.update_traces(textinfo='percent+label')
@@ -324,8 +324,8 @@ with tab1:
         
         st.markdown(f"""
         <div style="text-align: center;">
-            <p><span style="color: #6BBFAE; font-weight: bold;">18-30:</span> {data["age_data"]["18-30"]["value"]} contacts ({data["age_data"]["18-30"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
-            <p><span style="color: #A4C3DE; font-weight: bold;">Other Ages:</span> {data["age_data"]["Other Ages"]["value"]} contacts ({data["age_data"]["Other Ages"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
+            <p><span style="color: #30BCAA; font-weight: bold;">18-30:</span> {data["age_data"]["18-30"]["value"]} contacts ({data["age_data"]["18-30"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
+            <p><span style="color: #5E9FE0; font-weight: bold;">Other Ages:</span> {data["age_data"]["Other Ages"]["value"]} contacts ({data["age_data"]["Other Ages"]["value"]/(data["age_data"]["18-30"]["value"]+data["age_data"]["Other Ages"]["value"])*100:.1f}%)</p>
             <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-30</p>
         </div>
         """, unsafe_allow_html=True)
@@ -342,7 +342,7 @@ with tab1:
         
         funnel_df = pd.DataFrame(funnel_data)
         
-        colors = ['#6BBFAE', '#79C7BA', '#87CFC6', '#A4C3DE', '#B9A6CD']
+        colors = ['#30BCAA', '#4DAED0', '#5E9FE0', '#A57CD8', '#FF9A4D']
         
         fig = go.Figure(go.Funnel(
             y=funnel_df['stage'],
@@ -366,11 +366,11 @@ with tab1:
         # Funnel metrics
         cols = st.columns(5)
         funnel_metrics = [
-            {"label": "Unique User Reach", "value": data["social_data"]["Unique Users Reached"], "color": "#6BBFAE"},
-            {"label": "Visitors", "value": data["traffic_data"]["Visitors"], "color": "#79C7BA"},
-            {"label": "Registrants", "value": data["program_metrics"]["Registrants"]["value"], "color": "#87CFC6"},
-            {"label": "Downloads", "value": data["stream_data"]["Downloads"], "color": "#A4C3DE"},
-            {"label": "Week 0 Complete", "value": data["program_metrics"]["Completed Week 0"]["value"], "color": "#B9A6CD"}
+            {"label": "Unique User Reach", "value": data["social_data"]["Unique Users Reached"], "color": "#30BCAA"},
+            {"label": "Visitors", "value": data["traffic_data"]["Visitors"], "color": "#4DAED0"},
+            {"label": "Registrants", "value": data["program_metrics"]["Registrants"]["value"], "color": "#5E9FE0"},
+            {"label": "Downloads", "value": data["stream_data"]["Downloads"], "color": "#A57CD8"},
+            {"label": "Week 0 Complete", "value": data["program_metrics"]["Completed Week 0"]["value"], "color": "#FF9A4D"}
         ]
         
         for i, col in enumerate(cols):
@@ -402,7 +402,7 @@ with tab1:
             barmode='group',
             title='SMS Campaign Performance',
             labels={'value': 'Count', 'variable': 'Type'},
-            color_discrete_map={'Delivered': '#6BBFAE', 'Clicked': '#A4C3DE'}
+            color_discrete_map={'Delivered': '#30BCAA', 'Clicked': '#5E9FE0'}
         )
         
         fig.add_annotation(
@@ -431,10 +431,10 @@ with tab1:
         cols = st.columns(2)
         
         social_metrics = [
-            {"label": "Clicks to Site", "value": data["social_data"]["Clicks to Site"], "bg": "rgba(106, 191, 174, 0.1)", "text": "#334c5e"},
-            {"label": "Unique Users Reached", "value": data["social_data"]["Unique Users Reached"], "bg": "rgba(164, 195, 222, 0.1)", "text": "#334c5e"},
-            {"label": "Impressions Delivered", "value": data["social_data"]["Impressions Delivered"], "bg": "rgba(185, 166, 205, 0.1)", "text": "#334c5e"},
-            {"label": "Direct Engagements", "value": data["social_data"]["Direct Engagements"], "bg": "rgba(243, 169, 80, 0.1)", "text": "#334c5e"}
+            {"label": "Clicks to Site", "value": data["social_data"]["Clicks to Site"], "bg": "rgba(48, 188, 170, 0.1)", "text": "#333333"},
+            {"label": "Unique Users Reached", "value": data["social_data"]["Unique Users Reached"], "bg": "rgba(94, 159, 224, 0.1)", "text": "#333333"},
+            {"label": "Impressions Delivered", "value": data["social_data"]["Impressions Delivered"], "bg": "rgba(165, 124, 216, 0.1)", "text": "#333333"},
+            {"label": "Direct Engagements", "value": data["social_data"]["Direct Engagements"], "bg": "rgba(255, 154, 77, 0.1)", "text": "#333333"}
         ]
         
         for i, metric in enumerate(social_metrics):
@@ -452,9 +452,9 @@ with tab1:
     cols = st.columns(3)
     
     web_metrics = [
-        {"label": "Pageviews", "value": data["traffic_data"]["Pageviews"], "bg": "rgba(106, 191, 174, 0.1)", "text": "#334c5e"},
-        {"label": "Sessions", "value": data["traffic_data"]["Sessions"], "bg": "rgba(164, 195, 222, 0.1)", "text": "#334c5e"},
-        {"label": "Visitors", "value": data["traffic_data"]["Visitors"], "bg": "rgba(185, 166, 205, 0.1)", "text": "#334c5e"}
+        {"label": "Pageviews", "value": data["traffic_data"]["Pageviews"], "bg": "rgba(48, 188, 170, 0.1)", "text": "#333333"},
+        {"label": "Sessions", "value": data["traffic_data"]["Sessions"], "bg": "rgba(94, 159, 224, 0.1)", "text": "#333333"},
+        {"label": "Visitors", "value": data["traffic_data"]["Visitors"], "bg": "rgba(165, 124, 216, 0.1)", "text": "#333333"}
     ]
     
     for i, col in enumerate(cols):
