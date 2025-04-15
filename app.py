@@ -430,30 +430,44 @@ with tab1:
         st.markdown('<div class="chart-container" style="height: 100%; padding: 20px;">', unsafe_allow_html=True)
         st.subheader("Program Funnel")
         
-        # Create a simplified funnel visualization
+        # Create an improved funnel visualization with site visitors
         funnel_data = [
-            {"stage": "Registrants", "value": data["program_metrics"]["Registrants"]["value"], "color": "#5e86d7", "percentage": "100%"},
-            {"stage": "Downloads", "value": data["stream_data"]["Downloads"], "color": "#4fb96e", "percentage": f"{data['stream_data']['Downloads']/data['program_metrics']['Registrants']['value']*100:.1f}% of registrants"},
-            {"stage": "Week 0 Complete", "value": data["program_metrics"]["Completed Week 0"]["value"], "color": "#f5c759", "percentage": f"{data['program_metrics']['Completed Week 0']['value']/data['program_metrics']['Registrants']['value']*100:.1f}% of registrants"}
+            {"stage": "Unique User Reach", "value": data["social_data"]["Unique Users Reached"], "color": "#9365e0", "percentage": "100%"},
+            {"stage": "Site Visitors", "value": data["traffic_data"]["Visitors"], "color": "#5e86d7", "percentage": f"{data['traffic_data']['Visitors']/data['social_data']['Unique Users Reached']*100:.1f}% of reach"},
+            {"stage": "Registrants", "value": data["program_metrics"]["Registrants"]["value"], "color": "#4fb96e", "percentage": f"{data['program_metrics']['Registrants']['value']/data['traffic_data']['Visitors']*100:.1f}% of visitors"},
+            {"stage": "Downloads", "value": data["stream_data"]["Downloads"], "color": "#f5c759", "percentage": f"{data['stream_data']['Downloads']/data['program_metrics']['Registrants']['value']*100:.1f}% of registrants"},
+            {"stage": "Week 0 Complete", "value": data["program_metrics"]["Completed Week 0"]["value"], "color": "#f5883e", "percentage": f"{data['program_metrics']['Completed Week 0']['value']/data['program_metrics']['Registrants']['value']*100:.1f}% of registrants"}
         ]
         
-        for item in funnel_data:
+        # Create funnel with gradient width based on value
+        max_value = funnel_data[0]["value"]
+        
+        for i, item in enumerate(funnel_data):
+            # Calculate width percentage based on value
+            width_pct = min(100, max(30, item["value"] / max_value * 100))
+            margin_left = (100 - width_pct) / 2  # Center the funnel
+            
             st.markdown(f"""
-            <div style="background-color: {item['color']}; color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
-                <div style="font-size: 1.2rem; font-weight: bold;">{item["value"]:,} {item["stage"]}</div>
-                <div>{item["percentage"]}</div>
+            <div style="position: relative; width: 100%; margin-bottom: 5px;">
+                <div style="background-color: {item['color']}; color: white; padding: 15px; border-radius: 8px; 
+                     margin-left: {margin_left}%; width: {width_pct}%; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="font-size: 1.2rem; font-weight: bold;">{item["value"]:,} {item["stage"]}</div>
+                    <div>{item["percentage"]}</div>
+                </div>
+                {f'<div style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 15px solid {item["color"]}; z-index: 10;"></div>' if i < len(funnel_data)-1 else ''}
             </div>
+            <div style="height: 15px;"></div>
             """, unsafe_allow_html=True)
         
-        # Simple metrics underneath
-        cols = st.columns(3)
+        # Simple metrics underneath in a row
+        cols = st.columns(5)
         for i, col in enumerate(cols):
             with col:
                 item = funnel_data[i]
                 st.markdown(f"""
-                <div style="background-color: {item['color']}25; padding: 10px; border-radius: 8px; text-align: center;">
-                    <div style="font-weight: bold;">{item["value"]:,}</div>
-                    <div style="font-size: 0.9rem;">{item["stage"]}</div>
+                <div style="background-color: {item['color']}15; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid {item['color']}40;">
+                    <div style="font-weight: bold; color: {item['color']};">{item["value"]:,}</div>
+                    <div style="font-size: 0.8rem;">{item["stage"]}</div>
                 </div>
                 """, unsafe_allow_html=True)
         
