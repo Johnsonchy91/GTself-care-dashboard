@@ -12,82 +12,154 @@ st.set_page_config(
     layout="wide"
 )
 
-# Add CSS for styling
+# Add CSS for styling - Enhanced for responsiveness and cleaner design
 st.markdown("""
 <style>
+    /* Global styles */
     .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
+        font-size: calc(1.8rem + 0.6vw);
+        font-weight: 700;
         color: #3730a3;
-        margin-bottom: 0px;
+        margin-bottom: 8px;
+        padding-left: 0.5rem;
     }
     .sub-header {
-        font-size: 1.5rem;
-        font-weight: bold;
+        font-size: calc(1.2rem + 0.3vw);
+        font-weight: 600;
         color: #4338ca;
-        margin-top: 20px;
-        margin-bottom: 10px;
+        margin-top: 24px;
+        margin-bottom: 12px;
+        padding-left: 0.5rem;
+        border-left: 4px solid #4338ca;
     }
+    
+    /* Card styles */
     .metric-card {
-        background-color: #f3f4f6;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 5px;
+        background-color: #f9fafb;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 8px 0;
         text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     .metric-value {
-        font-size: 1.8rem;
-        font-weight: bold;
+        font-size: calc(1.5rem + 0.5vw);
+        font-weight: 700;
+        line-height: 1.2;
     }
     .metric-label {
         font-size: 1rem;
         color: #4b5563;
+        margin-bottom: 4px;
     }
+    
+    /* Status indicators */
     .status-achieved {
         background-color: #d1fae5;
         color: #065f46;
-        padding: 4px 8px;
+        padding: 4px 12px;
         border-radius: 9999px;
         font-size: 0.75rem;
         font-weight: 600;
+        display: inline-block;
+        margin-left: 8px;
     }
     .status-behind {
         background-color: #fef3c7;
         color: #92400e;
-        padding: 4px 8px;
+        padding: 4px 12px;
         border-radius: 9999px;
         font-size: 0.75rem;
         font-weight: 600;
+        display: inline-block;
+        margin-left: 8px;
     }
     .status-at-risk {
         background-color: #fee2e2;
         color: #b91c1c;
-        padding: 4px 8px;
+        padding: 4px 12px;
         border-radius: 9999px;
         font-size: 0.75rem;
         font-weight: 600;
+        display: inline-block;
+        margin-left: 8px;
     }
+    
+    /* Container styles */
     .insight-container {
         background-color: #f9fafb;
-        padding: 15px;
-        border-radius: 10px;
-        margin-top: 15px;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-left: 4px solid #6366f1;
     }
+    .insight-container ul {
+        padding-left: 20px;
+        margin-bottom: 0;
+    }
+    .insight-container li {
+        margin-bottom: 8px;
+    }
+    
+    /* Tab styles */
     .stTabs [data-baseweb="tab-list"] {
         gap: 24px;
+        background-color: #f9fafb;
+        padding: 8px 16px;
+        border-radius: 8px 8px 0 0;
     }
     .stTabs [data-baseweb="tab"] {
         height: 50px;
         white-space: pre-wrap;
         background-color: transparent;
-        border-radius: 4px 4px 0px 0px;
+        border-radius: 8px 8px 0 0;
         gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding: 10px 16px;
+        font-weight: 500;
     }
     .stTabs [aria-selected="true"] {
         background-color: #e0e7ff;
         color: #4338ca;
+        font-weight: 600;
+    }
+    
+    /* Progress bar styles */
+    .stProgress > div > div {
+        background-color: #e0e7ff;
+    }
+    .stProgress {
+        height: 10px;
+    }
+    
+    /* Chart container */
+    .chart-container {
+        background-color: white;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 12px 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .metric-card {
+            padding: 12px 8px;
+        }
+        .metric-value {
+            font-size: calc(1.2rem + 0.3vw);
+        }
+        .metric-label {
+            font-size: 0.85rem;
+        }
+        .insight-container {
+            padding: 12px;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -171,69 +243,99 @@ kpi_progress = {
 tab1, tab2 = st.tabs(["📊 Dashboard", "📈 Analysis & Recommendations"])
 
 with tab1:
-    # Dashboard Header
+    # Dashboard Header - Improved with container and date badge
+    st.markdown('<div style="background-color: #f9fafb; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">', unsafe_allow_html=True)
     st.markdown('<p class="main-header">Self-Care School Dashboard</p>', unsafe_allow_html=True)
-    st.markdown('Latest data as of April 25, 2025')
+    st.markdown('<div style="display: flex; align-items: center; margin-bottom: 10px;"><div style="background-color: #e0e7ff; padding: 6px 12px; border-radius: 16px; font-size: 0.9rem; color: #4338ca; font-weight: 500;">Latest data as of April 25, 2025</div></div>', unsafe_allow_html=True)
     
-    # Top metrics - Changed Week 0 Completed to Total Badges Claimed
+    # Divider
+    st.markdown('<hr style="margin: 0; border: none; border-top: 1px solid #e5e7eb;">', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Top metrics - Enhanced card design
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown("""
-        <div class="metric-card" style="background-color: #e0e7ff;">
+        <div class="metric-card" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);">
             <div class="metric-label">Registrants</div>
             <div class="metric-value">{:,}</div>
-            <div>Target: {:,}</div>
+            <div style="color: #4338ca; font-weight: 500;">Target: {:,}</div>
         </div>
         """.format(program_metrics['Registrants']['value'], program_metrics['Registrants']['target']), unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div class="metric-card" style="background-color: #fef3c7;">
+        <div class="metric-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
             <div class="metric-label">Visitors</div>
             <div class="metric-value">{:,}</div>
+            <div style="color: #92400e; font-weight: 500;">94.5% are new visitors</div>
         </div>
         """.format(traffic_data['Visitors']), unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div class="metric-card" style="background-color: #ffedd5;">
+        <div class="metric-card" style="background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);">
             <div class="metric-label">Total Badges Claimed</div>
             <div class="metric-value">{:,}</div>
-            <div>{:.1f}% of weekly target</div>
+            <div style="color: #9a3412; font-weight: 500;">{:.1f}% of weekly target</div>
         </div>
         """.format(badges_data['Total Claimed'], 
                   badges_data['Total Claimed'] / (3 * badges_data['Target']) * 100), 
                   unsafe_allow_html=True)
     
-    # KPI Progress & Analysis
+    # KPI Progress & Analysis - Enhanced with better progress bars and layout
     st.markdown('<p class="sub-header">KPI Progress & Analysis</p>', unsafe_allow_html=True)
     
-    # Create progress bars
+    # Add container
+    st.markdown('<div class="chart-container" style="padding: 20px;">', unsafe_allow_html=True)
+    
+    # Calculate average weekly badges
+    avg_weekly_badges = (badges_data['Week 0'] + badges_data['Week 1'] + badges_data['Week 2']) / 3
+    
+    # Updated KPI Progress Data with new Average Weekly Badges metric
+    kpi_progress = {
+        'Enrollment': {'current': 11985, 'target': 10000, 'percentage': 120, 'status': 'Achieved', 'color': '#10b981'},
+        '18-25 Enrollment': {'current': 101, 'target': 5000, 'percentage': 2, 'status': 'At Risk', 'color': '#ef4444'},
+        'Average Weekly Badges': {'current': avg_weekly_badges, 'target': 5000, 'percentage': int(avg_weekly_badges/5000*100), 'status': 'Behind', 'color': '#f59e0b'},
+        'Site Traffic': {'current': 29500, 'target': 250000, 'percentage': 12, 'status': 'Behind', 'color': '#f59e0b'},
+        'Downloads': {'current': 22186, 'target': 100000, 'percentage': 22, 'status': 'Behind', 'color': '#f59e0b'},
+        'Stories Submitted': {'current': 234, 'target': 100, 'percentage': 234, 'status': 'Achieved', 'color': '#10b981'}
+    }
+    
+    # Create progress bars with enhanced styling
     for key, item in kpi_progress.items():
         col1, col2, col3 = st.columns([1, 2, 1])
         with col1:
-            st.markdown(f"**{key}**")
+            st.markdown(f'<div style="font-weight: 600; padding: 8px 0;">{key}</div>', unsafe_allow_html=True)
         with col2:
             progress = min(item['percentage'], 100)
-            progress_text = f"{item['current']:,} / {item['target']:,} ({item['percentage']}%)"
             
-            progress_color = "#10b981" if item['status'] == 'Achieved' else "#f59e0b" if item['status'] == 'Behind' else "#ef4444"
-            st.progress(progress/100)
+            # Custom progress bar styling based on status
+            progress_color = item['color']
+            st.markdown(f"""
+            <div style="background-color: #f3f4f6; border-radius: 8px; height: 12px; margin-top: 12px;">
+                <div style="background-color: {progress_color}; width: {progress}%; height: 12px; border-radius: 8px;"></div>
+            </div>
+            """, unsafe_allow_html=True)
         with col3:
             status_class = f"status-{item['status'].lower().replace(' ', '-')}"
-            st.markdown(f"{progress_text} <span class='{status_class}'>{item['status']}</span>", unsafe_allow_html=True)
+            progress_text = f"{int(item['current']):,} / {item['target']:,}"
+            st.markdown(f'<div style="padding: 8px 0; text-align: right;">{progress_text} <span class="{status_class}">{item["status"]}</span></div>', unsafe_allow_html=True)
     
-    # Key Insights - UPDATED
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Key Insights - Enhanced styling
     st.markdown("""
     <div class="insight-container">
-        <h3>Key Insights:</h3>
-        <ul>
-            <li style="color: #059669;"><strong>Enrollment target exceeded (120% of goal)</strong> - <span class="status-achieved">Achieved</span></li>
-            <li style="color: #dc2626;"><strong>18-25 demographic severely underrepresented (2% of target)</strong> - <span class="status-at-risk">At Risk</span></li>
-            <li style="color: #d97706;"><strong>Program completion rates improving but still need attention (31% of target)</strong> - <span class="status-behind">Behind</span></li>
-            <li style="color: #2563eb;"><strong>Site traffic increased but still at 12% of target (29.5K vs 250K)</strong> - <span class="status-behind">Behind</span></li>
-            <li style="color: #059669;"><strong>Stories submission exceeding target by 134%</strong> - <span class="status-achieved">Achieved</span></li>
+        <h3 style="margin-top: 0; color: #4338ca; font-size: 1.2rem; margin-bottom: 12px;">Key Insights:</h3>
+        <ul style="list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #d1fae5; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong style="color: #059669;">Enrollment target exceeded (120% of goal)</strong> - <span class="status-achieved">Achieved</span></li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #fee2e2; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong style="color: #dc2626;">18-25 demographic severely underrepresented (2% of target)</strong> - <span class="status-at-risk">At Risk</span></li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #fef3c7; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong style="color: #d97706;">Average weekly badge claims at 49% of target</strong> - <span class="status-behind">Behind</span></li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #fef3c7; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong style="color: #2563eb;">Site traffic increased but still at 12% of target (29.5K vs 250K)</strong> - <span class="status-behind">Behind</span></li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #d1fae5; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong style="color: #059669;">Stories submission exceeding target by 134%</strong> - <span class="status-achieved">Achieved</span></li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
@@ -241,8 +343,12 @@ with tab1:
     # Demographics and Funnel section - Now stacked instead of side by side
     st.markdown('<p class="sub-header">Demographics & Program Funnel</p>', unsafe_allow_html=True)
     
-    # Age Demographics Pie Chart - UPDATED
+    # Age Demographics Pie Chart - Enhanced with container
     st.markdown('<p class="sub-header">Age Demographics</p>', unsafe_allow_html=True)
+    
+    # Add chart container
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    
     age_df = pd.DataFrame({
         'Age Group': list(age_data.keys()),
         'Value': [item['value'] for item in age_data.values()],
@@ -258,19 +364,31 @@ with tab1:
         title="Age Demographics (Registrants)"
     )
     fig.update_traces(textinfo='percent+label')
-    fig.update_layout(height=400)
+    fig.update_layout(
+        height=400,
+        title_font_size=16,
+        title_x=0.5,
+        margin=dict(t=60, b=20, l=20, r=20)
+    )
     st.plotly_chart(fig, use_container_width=True)
     
     st.markdown(f"""
-    <div style="text-align: center;">
+    <div style="text-align: center; margin-bottom: 10px;">
         <p><span style="color: #0088FE; font-weight: bold;">18-25:</span> {age_data['18-25']['value']} registrants ({age_data['18-25']['value']/(age_data['18-25']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
         <p><span style="color: #00C49F; font-weight: bold;">Other Ages:</span> {age_data['Other Ages']['value']} registrants ({age_data['Other Ages']['value']/(age_data['18-25']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
         <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-25</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Funnel chart - UPDATED
+    # Close chart container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Program Funnel - Enhanced with container
     st.markdown('<p class="sub-header">Program Funnel</p>', unsafe_allow_html=True)
+    
+    # Add chart container
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    
     funnel_data = [
         {'stage': 'Impressions (Ads)', 'value': social_data['Impressions Delivered'], 'percent': 100},
         {'stage': 'Visitors', 'value': traffic_data['Visitors'], 'percent': traffic_data['Visitors']/social_data['Impressions Delivered']*100},
@@ -292,49 +410,63 @@ with tab1:
     ))
     
     fig.update_layout(
-        title="Program Funnel",
+        title="Program Conversion Flow",
+        title_font_size=16,
+        title_x=0.5,
         margin=dict(l=20, r=20, t=60, b=20),
         height=450
     )
     
     st.plotly_chart(fig, use_container_width=True)
     
-    # Funnel metrics - UPDATED
-    st.markdown('<p class="sub-header">Funnel Metrics</p>', unsafe_allow_html=True)
+    # Funnel metrics - Enhanced with better cards
     cols = st.columns(5)
     funnel_metrics = [
-        {"label": "Impressions", "value": social_data['Impressions Delivered'], "color": "#9333ea"},
-        {"label": "Visitors", "value": traffic_data['Visitors'], "color": "#3b82f6"},
-        {"label": "Registrants", "value": program_metrics['Registrants']['value'], "color": "#4f46e5"},
-        {"label": "Downloads", "value": stream_data['Downloads'], "color": "#10b981"},
-        {"label": "Week 0 Complete", "value": program_metrics['Completed Week 0']['value'], "color": "#f59e0b"}
+        {"label": "Impressions", "value": social_data['Impressions Delivered'], "color": "#9333ea", "bg": "#f3e8ff"},
+        {"label": "Visitors", "value": traffic_data['Visitors'], "color": "#3b82f6", "bg": "#dbeafe"},
+        {"label": "Registrants", "value": program_metrics['Registrants']['value'], "color": "#4f46e5", "bg": "#e0e7ff"},
+        {"label": "Downloads", "value": stream_data['Downloads'], "color": "#10b981", "bg": "#dcfce7"},
+        {"label": "Week 0 Complete", "value": program_metrics['Completed Week 0']['value'], "color": "#f59e0b", "bg": "#fef3c7"}
     ]
     
     for i, col in enumerate(cols):
         with col:
             metric = funnel_metrics[i]
             st.markdown(f"""
-            <div class="metric-card" style="background-color: {metric['color']}25;">
+            <div class="metric-card" style="background-color: {metric['bg']}; border-left: 4px solid {metric['color']};">
                 <div class="metric-value" style="color: {metric['color']};">{metric['value']:,}</div>
-                <div class="metric-label">{metric['label']}</div>
+                <div class="metric-label" style="color: {metric['color']};">{metric['label']}</div>
             </div>
             """, unsafe_allow_html=True)
     
-    # New Section for Badges - NEW
+    # Close chart container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # New Section for Badges - Enhanced with container and better styling
     st.markdown('<p class="sub-header">Badge Progress</p>', unsafe_allow_html=True)
+    
+    # Add container
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     
     # Badge progress bar
     badge_weeks = ['Week 0', 'Week 1', 'Week 2']
     badge_values = [badges_data['Week 0'], badges_data['Week 1'], badges_data['Week 2']]
+    badge_colors = ['#4f46e5', '#3b82f6', '#60a5fa']
     
-    badge_fig = px.bar(
-        x=badge_weeks,
-        y=badge_values,
-        color=badge_weeks,
-        labels={'x': 'Week', 'y': 'Badges Claimed'},
-        title='Badge Claims by Week (Target: 5,000 per week)'
-    )
+    badge_fig = go.Figure()
     
+    # Add bars
+    for i, (week, value) in enumerate(zip(badge_weeks, badge_values)):
+        badge_fig.add_trace(go.Bar(
+            x=[week], 
+            y=[value],
+            name=week,
+            marker_color=badge_colors[i],
+            text=[f"{value:,}"],
+            textposition='auto',
+        ))
+    
+    # Add target line
     badge_fig.add_shape(
         type="line",
         x0=-0.5,
@@ -342,7 +474,7 @@ with tab1:
         x1=2.5,
         y1=5000,
         line=dict(
-            color="red",
+            color="#ef4444",
             width=2,
             dash="dash",
         )
@@ -354,97 +486,183 @@ with tab1:
         text="Weekly Target: 5,000",
         showarrow=False,
         font=dict(
-            color="red"
+            color="#ef4444",
+            size=12
         )
     )
     
     badge_fig.update_layout(
+        title="Badge Claims by Week",
+        title_font_size=16,
+        title_x=0.5,
         showlegend=False,
-        height=400
+        height=400,
+        margin=dict(l=20, r=20, t=60, b=20),
+        xaxis=dict(
+            title="",
+            tickfont=dict(size=14),
+        ),
+        yaxis=dict(
+            title="Number of Badges",
+            titlefont=dict(size=14),
+        ),
     )
     
     st.plotly_chart(badge_fig, use_container_width=True)
     
+    # Badge metrics with enhanced cards
     col1, col2 = st.columns(2)
     
     with col1:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: #dbeafe;">
+        <div class="metric-card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;">
             <div class="metric-label">Total Badges Claimed</div>
-            <div class="metric-value">{badges_data['Total Claimed']:,}</div>
+            <div class="metric-value" style="color: #1e40af;">{badges_data['Total Claimed']:,}</div>
+            <div style="font-weight: 500; color: #1e40af;">{badges_data['Total Claimed']/(3*badges_data['Target'])*100:.1f}% of three-week target</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: #dcfce7;">
+        <div class="metric-card" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-left: 4px solid #10b981;">
             <div class="metric-label">Unique Users with Badges</div>
-            <div class="metric-value">{badges_data['Unique Users']:,}</div>
-            <div>{badges_data['Unique Users']/program_metrics['Registrants']['value']*100:.1f}% of registrants</div>
+            <div class="metric-value" style="color: #047857;">{badges_data['Unique Users']:,}</div>
+            <div style="font-weight: 500; color: #047857;">{badges_data['Unique Users']/program_metrics['Registrants']['value']*100:.1f}% of registrants</div>
         </div>
         """, unsafe_allow_html=True)
     
-    # Social Media section - Now stacked with one visualization per row
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Social Media section - Enhanced with better styling and containers
     st.markdown('<p class="sub-header">Marketing Performance</p>', unsafe_allow_html=True)
     
-    # Social Media Metrics - UPDATED
-    st.subheader("Social Media Marketing")
+    # Add container
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    
+    # Social Media Metrics - UPDATED with better styling
+    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin-bottom: 16px; font-weight: 600;">Social Media Marketing</h3>', unsafe_allow_html=True)
     cols = st.columns(4)
     
     social_metrics = [
-        {"label": "Clicks to Site", "value": social_data['Clicks to Site'], "bg": "#dbeafe", "text": "#1e40af"},
-        {"label": "Impressions", "value": social_data['Impressions Delivered'], "bg": "#dcfce7", "text": "#166534"},
-        {"label": "Video Views", "value": social_data['Video Views'], "bg": "#f3e8ff", "text": "#6b21a8"},
-        {"label": "Engagements", "value": social_data['Direct Engagements'], "bg": "#fef9c3", "text": "#854d0e"}
+        {"label": "Clicks to Site", "value": social_data['Clicks to Site'], "bg": "linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)", "text": "#1e40af", "icon": "🔗"},
+        {"label": "Impressions", "value": social_data['Impressions Delivered'], "bg": "linear-gradient(135deg, #dcfce7 0%, #86efac 100%)", "text": "#166534", "icon": "👁️"},
+        {"label": "Video Views", "value": social_data['Video Views'], "bg": "linear-gradient(135deg, #f3e8ff 0%, #d8b4fe 100%)", "text": "#6b21a8", "icon": "📺"},
+        {"label": "Engagements", "value": social_data['Direct Engagements'], "bg": "linear-gradient(135deg, #fef9c3 0%, #fde047 100%)", "text": "#854d0e", "icon": "👍"}
     ]
     
     for i, col in enumerate(cols):
         with col:
             metric = social_metrics[i]
             st.markdown(f"""
-            <div class="metric-card" style="background-color: {metric['bg']};">
+            <div class="metric-card" style="background: {metric['bg']};">
+                <div style="font-size: 1.5rem; margin-bottom: 4px;">{metric['icon']}</div>
                 <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
                 <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
-                {f"<div>{social_data['Direct Engagements']/social_data['Impressions Delivered']*100:.1f}% engagement rate</div>" if metric['label'] == 'Engagements' else ""}
+                {f"<div style='color: {metric['text']}; font-weight: 500;'>{social_data['Direct Engagements']/social_data['Impressions Delivered']*100:.1f}% engagement rate</div>" if metric['label'] == 'Engagements' else ""}
             </div>
             """, unsafe_allow_html=True)
     
-    # Detailed Social Engagement - NEW and now stacked
-    st.subheader("Social Engagement Breakdown")
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Add container for engagement breakdown
+    st.markdown('<div class="chart-container" style="margin-top: 16px;">', unsafe_allow_html=True)
+    
+    # Detailed Social Engagement - Enhanced styling
+    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin-bottom: 16px; font-weight: 600;">Social Engagement Breakdown</h3>', unsafe_allow_html=True)
     
     social_engagement = pd.DataFrame([
-        {"Metric": "Reactions", "Value": social_data['Reactions']},
-        {"Metric": "Comments", "Value": social_data['Comments']},
-        {"Metric": "Shares", "Value": social_data['Shares']},
-        {"Metric": "Saves", "Value": social_data['Saves']},
-        {"Metric": "New Page Likes", "Value": social_data['Page Likes']}
+        {"Metric": "Reactions", "Value": social_data['Reactions'], "Color": "#3b82f6"},
+        {"Metric": "Comments", "Value": social_data['Comments'], "Color": "#8b5cf6"},
+        {"Metric": "Shares", "Value": social_data['Shares'], "Color": "#10b981"},
+        {"Metric": "Saves", "Value": social_data['Saves'], "Color": "#f59e0b"},
+        {"Metric": "New Page Likes", "Value": social_data['Page Likes'], "Color": "#ef4444"}
     ])
     
-    fig = px.bar(
-        social_engagement,
-        x="Metric",
-        y="Value",
-        color="Metric",
-        title="Social Media Engagement Metrics"
+    fig = go.Figure()
+    
+    # Add bars with custom colors
+    for i, row in social_engagement.iterrows():
+        fig.add_trace(go.Bar(
+            x=[row['Metric']],
+            y=[row['Value']],
+            name=row['Metric'],
+            marker_color=row['Color'],
+            text=[f"{row['Value']:,}"],
+            textposition='auto',
+        ))
+    
+    fig.update_layout(
+        title="Social Media Engagement by Type",
+        title_font_size=16,
+        title_x=0.5,
+        showlegend=False,
+        height=400,
+        margin=dict(l=20, r=20, t=60, b=20),
+        xaxis=dict(
+            title="",
+            tickfont=dict(size=14),
+        ),
+        yaxis=dict(
+            title="Count",
+            titlefont=dict(size=14),
+        ),
+        bargap=0.4,
     )
     
-    fig.update_layout(showlegend=False, height=400)
     st.plotly_chart(fig, use_container_width=True)
     
-    # Story Submissions - NEW - now centered
+    # Add engagement metrics in small cards
+    cols = st.columns(5)
+    
+    engagement_metrics = [
+        {"icon": "❤️", "label": "Reactions", "value": social_data['Reactions'], "color": "#3b82f6"},
+        {"icon": "💬", "label": "Comments", "value": social_data['Comments'], "color": "#8b5cf6"},
+        {"icon": "🔄", "label": "Shares", "value": social_data['Shares'], "color": "#10b981"},
+        {"icon": "🔖", "label": "Saves", "value": social_data['Saves'], "color": "#f59e0b"},
+        {"icon": "👍", "label": "Page Likes", "value": social_data['Page Likes'], "color": "#ef4444"},
+    ]
+    
+    for i, col in enumerate(cols):
+        with col:
+            metric = engagement_metrics[i]
+            st.markdown(f"""
+            <div style="text-align: center; padding: 8px; background-color: #f9fafb; border-radius: 8px; border-bottom: 3px solid {metric['color']};">
+                <div style="font-size: 1.2rem; margin-bottom: 4px;">{metric['icon']}</div>
+                <div style="font-weight: 600; color: {metric['color']};">{metric['value']:,}</div>
+                <div style="font-size: 0.8rem; color: #6b7280;">{metric['label']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Story Submissions - Enhanced with container and better styling
     st.markdown('<p class="sub-header">Story Submissions</p>', unsafe_allow_html=True)
+    
+    # Add container
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     
     # Create a centered column that takes 60% of the width
     _, col, _ = st.columns([1, 3, 1])
     
     with col:
         st.markdown(f"""
-        <div class="metric-card" style="background-color: #fef3c7;">
-            <div class="metric-label">Stories Submitted</div>
-            <div class="metric-value">{stories_data['Submitted']:,}</div>
-            <div>Target: {stories_data['Target']} ({stories_data['Submitted']/stories_data['Target']*100:.0f}% achieved)</div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); text-align: center; padding: 24px; border-left: 4px solid #f59e0b;">
+            <div class="metric-label" style="font-size: 1.2rem; margin-bottom: 8px;">Stories Submitted</div>
+            <div class="metric-value" style="font-size: 3rem; color: #92400e;">{stories_data['Submitted']:,}</div>
+            <div style="font-weight: 500; color: #92400e; margin-top: 8px;">
+                <span style="display: inline-block; background-color: #fde68a; border: 2px solid #f59e0b; border-radius: 9999px; padding: 6px 16px;">
+                    Target: {stories_data['Target']} 
+                    <span style="color: #059669; font-weight: 600; margin-left: 8px;">({stories_data['Submitted']/stories_data['Target']*100:.0f}% achieved)</span>
+                </span>
+            </div>
         </div>
         """, unsafe_allow_html=True)
+    
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Website Analytics - UPDATED
     st.markdown('<p class="sub-header">Website Analytics</p>', unsafe_allow_html=True)
