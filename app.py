@@ -175,7 +175,7 @@ with tab1:
     st.markdown('<p class="main-header">Self-Care School Dashboard</p>', unsafe_allow_html=True)
     st.markdown('Latest data as of April 25, 2025')
     
-    # Top metrics
+    # Top metrics - Changed Week 0 Completed to Total Badges Claimed
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -198,12 +198,12 @@ with tab1:
     with col3:
         st.markdown("""
         <div class="metric-card" style="background-color: #ffedd5;">
-            <div class="metric-label">Week 0 Completed</div>
+            <div class="metric-label">Total Badges Claimed</div>
             <div class="metric-value">{:,}</div>
-            <div>{:.1f}% of registrants</div>
+            <div>{:.1f}% of weekly target</div>
         </div>
-        """.format(program_metrics['Completed Week 0']['value'], 
-                  program_metrics['Completed Week 0']['value'] / program_metrics['Registrants']['value'] * 100), 
+        """.format(badges_data['Total Claimed'], 
+                  badges_data['Total Claimed'] / (3 * badges_data['Target']) * 100), 
                   unsafe_allow_html=True)
     
     # KPI Progress & Analysis
@@ -384,61 +384,60 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
     
-    # SMS and Social Media section
+    # Social Media section - Now stacked with one visualization per row
     st.markdown('<p class="sub-header">Marketing Performance</p>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
     
-    with col1:
-        # Social Media Metrics - UPDATED
-        st.subheader("Social Media Marketing")
-        cols = st.columns(2)
-        
-        social_metrics = [
-            {"label": "Clicks to Site", "value": social_data['Clicks to Site'], "bg": "#dbeafe", "text": "#1e40af"},
-            {"label": "Impressions", "value": social_data['Impressions Delivered'], "bg": "#dcfce7", "text": "#166534"},
-            {"label": "Video Views", "value": social_data['Video Views'], "bg": "#f3e8ff", "text": "#6b21a8"},
-            {"label": "Engagements", "value": social_data['Direct Engagements'], "bg": "#fef9c3", "text": "#854d0e"}
-        ]
-        
-        for i, metric in enumerate(social_metrics):
-            with cols[i % 2]:
-                st.markdown(f"""
-                <div class="metric-card" style="background-color: {metric['bg']};">
-                    <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
-                    <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
-                    {f"<div>{social_data['Direct Engagements']/social_data['Impressions Delivered']*100:.1f}% engagement rate</div>" if metric['label'] == 'Engagements' else ""}
-                </div>
-                """, unsafe_allow_html=True)
+    # Social Media Metrics - UPDATED
+    st.subheader("Social Media Marketing")
+    cols = st.columns(4)
     
-    with col2:
-        # Detailed Social Engagement - NEW
-        st.subheader("Social Engagement Breakdown")
-        
-        social_engagement = pd.DataFrame([
-            {"Metric": "Reactions", "Value": social_data['Reactions']},
-            {"Metric": "Comments", "Value": social_data['Comments']},
-            {"Metric": "Shares", "Value": social_data['Shares']},
-            {"Metric": "Saves", "Value": social_data['Saves']},
-            {"Metric": "New Page Likes", "Value": social_data['Page Likes']}
-        ])
-        
-        fig = px.bar(
-            social_engagement,
-            x="Metric",
-            y="Value",
-            color="Metric",
-            title="Social Media Engagement Metrics"
-        )
-        
-        fig.update_layout(showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+    social_metrics = [
+        {"label": "Clicks to Site", "value": social_data['Clicks to Site'], "bg": "#dbeafe", "text": "#1e40af"},
+        {"label": "Impressions", "value": social_data['Impressions Delivered'], "bg": "#dcfce7", "text": "#166534"},
+        {"label": "Video Views", "value": social_data['Video Views'], "bg": "#f3e8ff", "text": "#6b21a8"},
+        {"label": "Engagements", "value": social_data['Direct Engagements'], "bg": "#fef9c3", "text": "#854d0e"}
+    ]
     
-    # Story Submissions - NEW
+    for i, col in enumerate(cols):
+        with col:
+            metric = social_metrics[i]
+            st.markdown(f"""
+            <div class="metric-card" style="background-color: {metric['bg']};">
+                <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
+                <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
+                {f"<div>{social_data['Direct Engagements']/social_data['Impressions Delivered']*100:.1f}% engagement rate</div>" if metric['label'] == 'Engagements' else ""}
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Detailed Social Engagement - NEW and now stacked
+    st.subheader("Social Engagement Breakdown")
+    
+    social_engagement = pd.DataFrame([
+        {"Metric": "Reactions", "Value": social_data['Reactions']},
+        {"Metric": "Comments", "Value": social_data['Comments']},
+        {"Metric": "Shares", "Value": social_data['Shares']},
+        {"Metric": "Saves", "Value": social_data['Saves']},
+        {"Metric": "New Page Likes", "Value": social_data['Page Likes']}
+    ])
+    
+    fig = px.bar(
+        social_engagement,
+        x="Metric",
+        y="Value",
+        color="Metric",
+        title="Social Media Engagement Metrics"
+    )
+    
+    fig.update_layout(showlegend=False, height=400)
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Story Submissions - NEW - now centered
     st.markdown('<p class="sub-header">Story Submissions</p>', unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+    # Create a centered column that takes 60% of the width
+    _, col, _ = st.columns([1, 3, 1])
     
-    with col1:
+    with col:
         st.markdown(f"""
         <div class="metric-card" style="background-color: #fef3c7;">
             <div class="metric-label">Stories Submitted</div>
