@@ -238,86 +238,87 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
     
-    # Demographics and Funnel section
+    # Demographics and Funnel section - Now stacked instead of side by side
     st.markdown('<p class="sub-header">Demographics & Program Funnel</p>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
     
-    with col1:
-        # Age Demographics Pie Chart - UPDATED
-        age_df = pd.DataFrame({
-            'Age Group': list(age_data.keys()),
-            'Value': [item['value'] for item in age_data.values()],
-            'Color': [item['color'] for item in age_data.values()]
-        })
-        
-        fig = px.pie(
-            age_df, 
-            values='Value', 
-            names='Age Group',
-            color='Age Group',
-            color_discrete_map={'18-25': '#0088FE', 'Other Ages': '#00C49F'},
-            title="Age Demographics (Registrants)"
-        )
-        fig.update_traces(textinfo='percent+label')
-        st.plotly_chart(fig, use_container_width=True)
-        
-        st.markdown(f"""
-        <div style="text-align: center;">
-            <p><span style="color: #0088FE; font-weight: bold;">18-25:</span> {age_data['18-25']['value']} registrants ({age_data['18-25']['value']/(age_data['18-25']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
-            <p><span style="color: #00C49F; font-weight: bold;">Other Ages:</span> {age_data['Other Ages']['value']} registrants ({age_data['Other Ages']['value']/(age_data['18-25']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
-            <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-25</p>
-        </div>
-        """, unsafe_allow_html=True)
+    # Age Demographics Pie Chart - UPDATED
+    st.markdown('<p class="sub-header">Age Demographics</p>', unsafe_allow_html=True)
+    age_df = pd.DataFrame({
+        'Age Group': list(age_data.keys()),
+        'Value': [item['value'] for item in age_data.values()],
+        'Color': [item['color'] for item in age_data.values()]
+    })
     
-    with col2:
-        # Funnel chart - UPDATED
-        funnel_data = [
-            {'stage': 'Impressions (Ads)', 'value': social_data['Impressions Delivered'], 'percent': 100},
-            {'stage': 'Visitors', 'value': traffic_data['Visitors'], 'percent': traffic_data['Visitors']/social_data['Impressions Delivered']*100},
-            {'stage': 'Registrants', 'value': program_metrics['Registrants']['value'], 'percent': program_metrics['Registrants']['value']/traffic_data['Visitors']*100},
-            {'stage': 'Downloads', 'value': stream_data['Downloads'], 'percent': stream_data['Downloads']/program_metrics['Registrants']['value']*100},
-            {'stage': 'Week 0 Complete', 'value': program_metrics['Completed Week 0']['value'], 'percent': program_metrics['Completed Week 0']['value']/program_metrics['Registrants']['value']*100}
-        ]
-        
-        funnel_df = pd.DataFrame(funnel_data)
-        
-        colors = ['#9333ea', '#3b82f6', '#4f46e5', '#10b981', '#f59e0b']
-        
-        fig = go.Figure(go.Funnel(
-            y=funnel_df['stage'],
-            x=funnel_df['value'],
-            textposition="inside",
-            textinfo="value+percent initial",
-            marker={"color": colors}
-        ))
-        
-        fig.update_layout(
-            title="Program Funnel",
-            margin=dict(l=20, r=20, t=60, b=20),
-            height=450
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Funnel metrics - UPDATED
-        cols = st.columns(5)
-        funnel_metrics = [
-            {"label": "Impressions", "value": social_data['Impressions Delivered'], "color": "#9333ea"},
-            {"label": "Visitors", "value": traffic_data['Visitors'], "color": "#3b82f6"},
-            {"label": "Registrants", "value": program_metrics['Registrants']['value'], "color": "#4f46e5"},
-            {"label": "Downloads", "value": stream_data['Downloads'], "color": "#10b981"},
-            {"label": "Week 0 Complete", "value": program_metrics['Completed Week 0']['value'], "color": "#f59e0b"}
-        ]
-        
-        for i, col in enumerate(cols):
-            with col:
-                metric = funnel_metrics[i]
-                st.markdown(f"""
-                <div class="metric-card" style="background-color: {metric['color']}25;">
-                    <div class="metric-value" style="color: {metric['color']};">{metric['value']:,}</div>
-                    <div class="metric-label">{metric['label']}</div>
-                </div>
-                """, unsafe_allow_html=True)
+    fig = px.pie(
+        age_df, 
+        values='Value', 
+        names='Age Group',
+        color='Age Group',
+        color_discrete_map={'18-25': '#0088FE', 'Other Ages': '#00C49F'},
+        title="Age Demographics (Registrants)"
+    )
+    fig.update_traces(textinfo='percent+label')
+    fig.update_layout(height=400)
+    st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown(f"""
+    <div style="text-align: center;">
+        <p><span style="color: #0088FE; font-weight: bold;">18-25:</span> {age_data['18-25']['value']} registrants ({age_data['18-25']['value']/(age_data['18-25']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
+        <p><span style="color: #00C49F; font-weight: bold;">Other Ages:</span> {age_data['Other Ages']['value']} registrants ({age_data['Other Ages']['value']/(age_data['18-25']['value']+age_data['Other Ages']['value'])*100:.1f}%)</p>
+        <p style="font-weight: bold; margin-top: 10px;">KPI Target: 50% ages 18-25</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Funnel chart - UPDATED
+    st.markdown('<p class="sub-header">Program Funnel</p>', unsafe_allow_html=True)
+    funnel_data = [
+        {'stage': 'Impressions (Ads)', 'value': social_data['Impressions Delivered'], 'percent': 100},
+        {'stage': 'Visitors', 'value': traffic_data['Visitors'], 'percent': traffic_data['Visitors']/social_data['Impressions Delivered']*100},
+        {'stage': 'Registrants', 'value': program_metrics['Registrants']['value'], 'percent': program_metrics['Registrants']['value']/traffic_data['Visitors']*100},
+        {'stage': 'Downloads', 'value': stream_data['Downloads'], 'percent': stream_data['Downloads']/program_metrics['Registrants']['value']*100},
+        {'stage': 'Week 0 Complete', 'value': program_metrics['Completed Week 0']['value'], 'percent': program_metrics['Completed Week 0']['value']/program_metrics['Registrants']['value']*100}
+    ]
+    
+    funnel_df = pd.DataFrame(funnel_data)
+    
+    colors = ['#9333ea', '#3b82f6', '#4f46e5', '#10b981', '#f59e0b']
+    
+    fig = go.Figure(go.Funnel(
+        y=funnel_df['stage'],
+        x=funnel_df['value'],
+        textposition="inside",
+        textinfo="value+percent initial",
+        marker={"color": colors}
+    ))
+    
+    fig.update_layout(
+        title="Program Funnel",
+        margin=dict(l=20, r=20, t=60, b=20),
+        height=450
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Funnel metrics - UPDATED
+    st.markdown('<p class="sub-header">Funnel Metrics</p>', unsafe_allow_html=True)
+    cols = st.columns(5)
+    funnel_metrics = [
+        {"label": "Impressions", "value": social_data['Impressions Delivered'], "color": "#9333ea"},
+        {"label": "Visitors", "value": traffic_data['Visitors'], "color": "#3b82f6"},
+        {"label": "Registrants", "value": program_metrics['Registrants']['value'], "color": "#4f46e5"},
+        {"label": "Downloads", "value": stream_data['Downloads'], "color": "#10b981"},
+        {"label": "Week 0 Complete", "value": program_metrics['Completed Week 0']['value'], "color": "#f59e0b"}
+    ]
+    
+    for i, col in enumerate(cols):
+        with col:
+            metric = funnel_metrics[i]
+            st.markdown(f"""
+            <div class="metric-card" style="background-color: {metric['color']}25;">
+                <div class="metric-value" style="color: {metric['color']};">{metric['value']:,}</div>
+                <div class="metric-label">{metric['label']}</div>
+            </div>
+            """, unsafe_allow_html=True)
     
     # New Section for Badges - NEW
     st.markdown('<p class="sub-header">Badge Progress</p>', unsafe_allow_html=True)
@@ -463,7 +464,7 @@ with tab1:
             st.markdown(f"""
             <div class="metric-card" style="background-color: {metric['bg']};">
                 <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
-                <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
+                <div class="metric-value" style="color: {metric['text']};"> {metric['value']} </div>
                 <div>{metric['subtext']}</div>
             </div>
             """, unsafe_allow_html=True)
