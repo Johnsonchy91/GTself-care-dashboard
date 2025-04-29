@@ -747,14 +747,14 @@ with tab2:
     st.markdown('<p class="main-header">Strategic Recommendations</p>', unsafe_allow_html=True)
     
     # Priority 1 - UPDATED
-    st.markdown('<p class="sub-header">Priority 1: Youth Engagement Strategy (URGENT)</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">Priority 1: Youth Engagement Strategy</p>', unsafe_allow_html=True)
     st.markdown("""
     <div class="insight-container">
         <ul>
-            <li><span style="font-weight: bold;">Youth-Specific Content Strategy:</span> Develop dedicated content streams and messaging specifically for 18-25 demographic.</li>
-            <li><span style="font-weight: bold;">Platform Reallocation:</span> Immediately shift 60-70% of marketing budget to platforms with highest 18-25 demographic (TikTok, Instagram Reels).</li>
-            <li><span style="font-weight: bold;">Campus Ambassador Program:</span> Launch an emergency recruitment drive targeting campus wellness centers and student organizations.</li>
-            <li><span style="font-weight: bold;">Youth Focus Groups:</span> Conduct rapid research with the 101 existing 18-25 users to identify barriers and opportunities.</li>
+            <li><span style="font-weight: bold;">Youth-Specific Content Strategy:</span> Develop dedicated content streams and messaging specifically for the 18-25 demographic.</li>
+            <li><span style="font-weight: bold;">Platform Reallocation:</span> Immediately shift 60-70% of marketing budget to platforms with the highest 18-25 demographic (TikTok, Instagram Reels).</li>
+            <li><span style="font-weight: bold;">Campus Ambassador Program:</span> Launch a recruitment drive targeting campus wellness centers and student organizations.</li>
+            <li><span style="font-weight: bold;">Youth Focus Groups:</span> Conduct research with the 101 existing 18-25 users to identify barriers and opportunities.</li>
             <li><span style="font-weight: bold;">Incentive Program:</span> Create referral bonuses specifically for bringing in 18-25 age demographic participants.</li>
         </ul>
     </div>
@@ -779,40 +779,10 @@ with tab2:
     st.markdown("""
     <div class="insight-container">
         <ul>
-            <li><span style="font-weight: bold;">Comment Response Strategy:</span> Develop dedicated resources to respond to all 74+ comments for improved community engagement.</li>
             <li><span style="font-weight: bold;">Video Content Expansion:</span> Double down on video content given the strong 70.7K views.</li>
             <li><span style="font-weight: bold;">Shareable Content Focus:</span> Create more content optimized for sharing given the 217 shares already achieved.</li>
             <li><span style="font-weight: bold;">User Story Campaign:</span> Feature the best of the 234 submitted stories in social media campaigns.</li>
-            <li><span style="font-weight: bold;">Cross-Platform Integration:</span> Ensure seamless experience between social platforms and the main program website.</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Implementation Timeline - UPDATED
-    st.markdown('<p class="sub-header">Implementation Timeline</p>', unsafe_allow_html=True)
-    
-    timeline_data = pd.DataFrame([
-        {"Recommendation": "Emergency youth marketing reallocation", "Timeframe": "Immediate (48 hours)", "Expected Impact": "Critical - Direct impact on 18-25 recruitment"},
-        {"Recommendation": "Badge system enhancement", "Timeframe": "Immediate (1 week)", "Expected Impact": "High - Could recover 15-25% of badge drop-offs"},
-        {"Recommendation": "Comment response initiative", "Timeframe": "Immediate (72 hours)", "Expected Impact": "Medium - Builds community engagement"},
-        {"Recommendation": "Youth focus groups with 101 existing 18-25 users", "Timeframe": "Short-term (1 week)", "Expected Impact": "High - Critical insights for improvement"},
-        {"Recommendation": "Featured story campaign from 234 submissions", "Timeframe": "Short-term (1-2 weeks)", "Expected Impact": "Medium - Leverages existing UGC success"},
-        {"Recommendation": "Campus ambassador emergency program", "Timeframe": "Short-term (2 weeks)", "Expected Impact": "High - Direct channel to target demographic"},
-        {"Recommendation": "Re-engagement campaign for non-completers", "Timeframe": "Short-term (1 week)", "Expected Impact": "High - Could improve completion by 10-15%"}
-    ])
-    
-    st.dataframe(timeline_data, use_container_width=True, hide_index=True)
-    
-    # KPI Forecast - UPDATED
-    st.markdown('<p class="sub-header">KPI Forecast with Recommended Actions</p>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="insight-container">
-        <ul>
-            <li><span style="font-weight: bold;">18-25 Enrollment:</span> Even with emergency measures, realistically expect to reach only 15-20% of the target by program end (vs. 50% target).</li>
-            <li><span style="font-weight: bold;">Week 0 Completion:</span> With enhanced re-engagement, target 45-50% completion (5,300-6,000 participants).</li>
-            <li><span style="font-weight: bold;">Badge Claims:</span> Badge system enhancement could bring weekly claims to 4,000-4,500 (vs. 5,000 target).</li>
-            <li><span style="font-weight: bold;">Social Engagement:</span> Comment response initiative should increase engagement metrics by 30-40%.</li>
-            <li><span style="font-weight: bold;">Story Submissions:</span> Continue to exceed targets; expect 300+ by program end.</li>
+            <li><span style="font-weight: bold;">Cross-Platform Integration:</span> Improve the sharing experience between social platforms and the main program website.</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
