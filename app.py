@@ -1,280 +1,4 @@
-    # Self-Care School Podcast Analytics - NEW SECTION
-    st.markdown('<p class="sub-header">Self-Care School Podcast Analytics</p>', unsafe_allow_html=True)
-    
-    # Add container
-    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-    
-    # Summary metrics
-    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin-bottom: 16px; font-weight: 600; text-align: center;">Podcast Performance Overview</h3>', unsafe_allow_html=True)
-    
-    # Top metrics row
-    cols = st.columns(3)
-    
-    podcast_summary = [
-        {"icon": "🎧", "label": "Total Plays", "value": podcast_data['Total Plays'], "bg": "linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 100%)", "text": "#4338ca"},
-        {"icon": "🎙️", "label": "Total Episodes", "value": podcast_data['Total Episodes'], "bg": "linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)", "text": "#1e40af"},
-        {"icon": "📈", "label": "Average Plays Per Episode", "value": podcast_data['Average Plays'], "bg": "linear-gradient(135deg, #f3e8ff 0%, #d8b4fe 100%)", "text": "#7e22ce"}
-    ]
-    
-    for i, col in enumerate(cols):
-        with col:
-            metric = podcast_summary[i]
-            st.markdown(f"""
-            <div class="metric-card" style="background: {metric['bg']};">
-                <div style="font-size: 2rem; margin-bottom: 4px;">{metric['icon']}</div>
-                <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
-                <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # Weekly Plays Chart
-    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin: 20px 0 16px 0; font-weight: 600;">Episode Plays by Week</h3>', unsafe_allow_html=True)
-    
-    weekly_data = pd.DataFrame({
-        'Week': list(podcast_data['Weekly Plays'].keys()),
-        'Plays': list(podcast_data['Weekly Plays'].values())
-    })
-    
-    # Set colors for weekly bars
-    week_colors = {
-        'Week 0': '#8b5cf6',
-        'Week 1': '#a78bfa',
-        'Week 2': '#10b981',
-        'Week 3': '#f59e0b'
-    }
-    
-    # Create weekly plays bar chart
-    weekly_fig = go.Figure()
-    
-    for i, row in weekly_data.iterrows():
-        weekly_fig.add_trace(go.Bar(
-            x=[row['Week']],
-            y=[row['Plays']],
-            name=row['Week'],
-            marker_color=week_colors[row['Week']],
-            text=[f"{row['Plays']:,}"],
-            textposition='auto',
-            hovertemplate=f"<b>{row['Week']}</b><br>Total Plays: %{{y:,}}"
-        ))
-    
-    weekly_fig.update_layout(
-        title="Total Plays by Week",
-        title_font_size=16,
-        title_x=0.5,
-        showlegend=False,
-        height=350,
-        margin=dict(l=20, r=20, t=60, b=20),
-        bargap=0.4,
-        yaxis_title="Number of Plays"
-    )
-    
-    st.plotly_chart(weekly_fig, use_container_width=True)
-    
-    # Top episodes within each week
-    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin: 20px 0 16px 0; font-weight: 600;">Individual Episode Performance</h3>', unsafe_allow_html=True)
-    
-    # Create tabs for each week
-    week_tabs = st.tabs(["Week 0", "Week 1", "Week 2", "Week 3"])
-    
-    for week_idx, week_tab in enumerate(week_tabs):
-        week_name = f"Week {week_idx}"
-        
-        with week_tab:
-            # Filter episodes for this week
-            week_episodes = [ep for ep in podcast_data['Episodes'] if ep['week'] == week_idx]
-            week_episodes.sort(key=lambda x: x['day'])
-            
-            # Create week-specific bar chart
-            ep_fig = go.Figure()
-            
-            for ep in week_episodes:
-                ep_fig.add_trace(go.Bar(
-                    y=[f"Day {ep['day']}: {ep['title']}"],
-                    x=[ep['plays']],
-                    orientation='h',
-                    marker_color=ep['color'],
-                    text=[f"{ep['plays']:,}"],
-                    textposition='auto',
-                    hovertemplate=f"<b>Day {ep['day']}: {ep['title']}</b><br>Plays: %{{x:,}}"
-                ))
-            
-            ep_fig.update_layout(
-                title=f"{week_name} Episode Performance",
-                title_font_size=16,
-                title_x=0.5,
-                showlegend=False,
-                height=350,
-                margin=dict(l=20, r=20, t=60, b=20),
-                bargap=0.2,
-                xaxis_title="Number of Plays",
-                xaxis=dict(
-                    title="Plays",
-                    titlefont=dict(size=14),
-                ),
-                yaxis=dict(
-                    title="",
-                    titlefont=dict(size=14),
-                    autorange="reversed"  # This puts the highest value at the top
-                )
-            )
-            
-            st.plotly_chart(ep_fig, use_container_width=True)
-            
-            # Add weekly insights
-            total_week_plays = sum(ep['plays'] for ep in week_episodes)
-            avg_week_plays = int(total_week_plays / len(week_episodes))
-            most_played = max(week_episodes, key=lambda x: x['plays'])
-            
-            st.markdown(f"""
-            <div style="display: flex; gap: 16px; margin-top: 10px;">
-                <div style="flex: 1; background: {week_colors[week_name]}20; padding: 12px; border-radius: 8px; text-align: center; border-left: 3px solid {week_colors[week_name]};">
-                    <div style="font-weight: 600; color: {week_colors[week_name]};">Total Plays</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: {week_colors[week_name]};">{total_week_plays:,}</div>
-                </div>
-                <div style="flex: 1; background: {week_colors[week_name]}20; padding: 12px; border-radius: 8px; text-align: center; border-left: 3px solid {week_colors[week_name]};">
-                    <div style="font-weight: 600; color: {week_colors[week_name]};">Average Per Episode</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: {week_colors[week_name]};">{avg_week_plays:,}</div>
-                </div>
-                <div style="flex: 2; background: {week_colors[week_name]}20; padding: 12px; border-radius: 8px; text-align: center; border-left: 3px solid {week_colors[week_name]};">
-                    <div style="font-weight: 600; color: {week_colors[week_name]};">Most Popular Episode</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: {week_colors[week_name]};">Day {most_played['day']}: {most_played['title']}</div>
-                    <div style="font-size: 0.9rem; color: {week_colors[week_name]};">{most_played['plays']:,} plays</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # Key insights for podcast data
-    st.markdown("""
-    <div class="insight-container">
-        <h3 style="margin-top: 0; color: #4338ca; font-size: 1.2rem; margin-bottom: 12px;">Key Podcast Insights:</h3>
-        <ul style="list-style-type: none; padding-left: 0;">
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #8b5cf6; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Week 0 (Orientation)</strong> has the highest total plays at 6,957, showing strong initial engagement</li>
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #a78bfa; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Day 1 episodes</strong> consistently have the highest plays within each week</li>
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #f59e0b; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Week 3</strong> shows a significant drop in plays (1,190) compared to previous weeks</li>
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #10b981; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> Average plays gradually decrease each week, indicating an opportunity for re-engagement strategies</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Close container
-    st.markdown('</div>', unsafe_allow_html=True)    # Black History Bootcamp Analytics - NEW SECTION
-    st.markdown('<p class="sub-header">Black History Bootcamp Analytics</p>', unsafe_allow_html=True)
-    
-    # Add container
-    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-    
-    # Summary metrics
-    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin-bottom: 16px; font-weight: 600; text-align: center;">Podcast Performance Overview</h3>', unsafe_allow_html=True)
-    
-    # Top metrics row
-    cols = st.columns(3)
-    
-    bootcamp_summary = [
-        {"icon": "🎧", "label": "Total Plays", "value": bootcamp_data['Total Plays'], "bg": "linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 100%)", "text": "#4338ca"},
-        {"icon": "🎙️", "label": "Total Episodes", "value": bootcamp_data['Total Episodes'], "bg": "linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)", "text": "#1e40af"},
-        {"icon": "📈", "label": "Average Plays Per Episode", "value": bootcamp_data['Average Plays'], "bg": "linear-gradient(135deg, #f3e8ff 0%, #d8b4fe 100%)", "text": "#7e22ce"}
-    ]
-    
-    for i, col in enumerate(cols):
-        with col:
-            metric = bootcamp_summary[i]
-            st.markdown(f"""
-            <div class="metric-card" style="background: {metric['bg']};">
-                <div style="font-size: 2rem; margin-bottom: 4px;">{metric['icon']}</div>
-                <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
-                <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # Series comparison
-    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin: 20px 0 16px 0; font-weight: 600;">Series Comparison</h3>', unsafe_allow_html=True)
-    
-    series_df = pd.DataFrame(bootcamp_data['Series Data'])
-    
-    # Create series comparison chart
-    series_fig = go.Figure()
-    
-    # Add bars
-    for i, row in series_df.iterrows():
-        series_fig.add_trace(go.Bar(
-            x=[row['name']],
-            y=[row['plays']],
-            name=row['name'],
-            marker_color=row['color'],
-            text=[f"{row['plays']:,}"],
-            textposition='auto',
-            hovertemplate=f"<b>{row['name']}</b><br>Total Plays: %{{y:,}}<br>Episodes: {row['episodes']}<br>Avg: {row['avg']:,} per episode"
-        ))
-    
-    series_fig.update_layout(
-        title="Plays by Series",
-        title_font_size=16,
-        title_x=0.5,
-        showlegend=False,
-        height=350,
-        margin=dict(l=20, r=20, t=60, b=20),
-        bargap=0.4,
-        yaxis_title="Total Plays"
-    )
-    
-    st.plotly_chart(series_fig, use_container_width=True)
-    
-    # Top Episodes Bar Chart
-    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin: 20px 0 16px 0; font-weight: 600;">Top 10 Episodes by Plays</h3>', unsafe_allow_html=True)
-    
-    top_episodes_df = pd.DataFrame(bootcamp_data['Top Episodes'])
-    
-    episode_fig = go.Figure()
-    
-    # Add horizontal bars for better readability of episode titles
-    for i, row in top_episodes_df.iterrows():
-        episode_fig.add_trace(go.Bar(
-            y=[row['title']],
-            x=[row['plays']],
-            orientation='h',
-            marker_color=row['color'],
-            text=[f"{row['plays']:,}"],
-            textposition='auto',
-            hovertemplate=f"<b>{row['title']}</b><br>Plays: %{{x:,}}"
-        ))
-    
-    episode_fig.update_layout(
-        title="Top Episodes by Number of Plays",
-        title_font_size=16,
-        title_x=0.5,
-        showlegend=False,
-        height=500,
-        margin=dict(l=20, r=20, t=60, b=20),
-        bargap=0.2,
-        xaxis_title="Plays",
-        xaxis=dict(
-            title="Number of Plays",
-            titlefont=dict(size=14),
-        ),
-        yaxis=dict(
-            title="",
-            titlefont=dict(size=14),
-            autorange="reversed"  # This puts the highest value at the top
-        )
-    )
-    
-    st.plotly_chart(episode_fig, use_container_width=True)
-    
-    # Key insights for bootcamp data
-    st.markdown("""
-    <div class="insight-container">
-        <h3 style="margin-top: 0; color: #4338ca; font-size: 1.2rem; margin-bottom: 12px;">Key Insights:</h3>
-        <ul style="list-style-type: none; padding-left: 0;">
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #8b5cf6; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Original Black History Bootcamp</strong> episodes have the highest average plays (7,849 per episode)</li>
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #3b82f6; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Day 1 | Audre Lorde</strong> is the most played episode with 22,816 plays</li>
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #10b981; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>First week episodes</strong> consistently receive the highest play counts, showing strong initial engagement</li>
-            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #f59e0b; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> The <strong>Resistance Series</strong> performs well with 5,341 average plays per episode</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Close container
-    st.markdown('</div>', unsafe_allow_html=True)import streamlit as st
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -440,7 +164,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize data - UPDATED with new values
+# Initialize data
 # Program Metrics Data
 program_metrics = {
     'Registrants': {'value': 11985, 'target': 10000, 'color': '#8884d8'},
@@ -505,14 +229,39 @@ stories_data = {
     'Target': 100
 }
 
-# KPI Progress Data - UPDATED
-kpi_progress = {
-    'Enrollment': {'current': 11985, 'target': 10000, 'percentage': 120, 'status': 'Achieved'},
-    '18-25 Enrollment': {'current': 101, 'target': 5000, 'percentage': 2, 'status': 'At Risk'},
-    'Week 0 Completion': {'current': 3089, 'target': 10000, 'percentage': 31, 'status': 'Behind'},
-    'Site Traffic': {'current': 29500, 'target': 250000, 'percentage': 12, 'status': 'Behind'},
-    'Downloads': {'current': 22186, 'target': 100000, 'percentage': 22, 'status': 'Behind'},
-    'Stories Submitted': {'current': 234, 'target': 100, 'percentage': 234, 'status': 'Achieved'}
+# Podcast Data - NEW
+podcast_data = {
+    'Total Plays': 21078,
+    'Total Episodes': 17,
+    'Average Plays': 1240,
+    'Weekly Plays': {
+        'Week 0': 6957,
+        'Week 1': 6809,
+        'Week 2': 6122,
+        'Week 3': 1190
+    },
+    'Episodes': [
+        {'week': 0, 'day': 1, 'title': 'Orientation Week: Before We Begin', 'plays': 1566, 'color': '#8b5cf6'},
+        {'week': 0, 'day': 2, 'title': 'Life Expectancy Calculator', 'plays': 1548, 'color': '#818cf8'},
+        {'week': 0, 'day': 3, 'title': 'Meet the Homegirl Hotline Hosts', 'plays': 1317, 'color': '#93c5fd'},
+        {'week': 0, 'day': 4, 'title': 'Set Your Intentions', 'plays': 1161, 'color': '#bfdbfe'},
+        {'week': 0, 'day': 5, 'title': 'The Pep Rally', 'plays': 1365, 'color': '#dbeafe'},
+        
+        {'week': 1, 'day': 1, 'title': 'Healing the Heart', 'plays': 1495, 'color': '#a78bfa'},
+        {'week': 1, 'day': 2, 'title': 'Know Your Numbers', 'plays': 1399, 'color': '#c4b5fd'},
+        {'week': 1, 'day': 3, 'title': 'Sleep to Save Your Life', 'plays': 1309, 'color': '#ddd6fe'},
+        {'week': 1, 'day': 4, 'title': 'Hydration and Hygiene', 'plays': 1250, 'color': '#ede9fe'},
+        {'week': 1, 'day': 5, 'title': 'Healing with Vitamin D and Physical Touch', 'plays': 1356, 'color': '#f5f3ff'},
+        
+        {'week': 2, 'day': 1, 'title': 'Disconnect to Reconnect', 'plays': 1329, 'color': '#10b981'},
+        {'week': 2, 'day': 2, 'title': 'Mental Health Diagnoses', 'plays': 1297, 'color': '#34d399'},
+        {'week': 2, 'day': 3, 'title': 'Rooted in Nature', 'plays': 1156, 'color': '#6ee7b7'},
+        {'week': 2, 'day': 4, 'title': 'Compassionate Listening', 'plays': 1147, 'color': '#a7f3d0'},
+        {'week': 2, 'day': 5, 'title': 'Connection Prayer and Purpose', 'plays': 1193, 'color': '#d1fae5'},
+        
+        {'week': 3, 'day': 1, 'title': 'ACES Teach-In', 'plays': 818, 'color': '#f59e0b'},
+        {'week': 3, 'day': 2, 'title': 'Love with Boundaries and Recognizing Abuse', 'plays': 372, 'color': '#fbbf24'}
+    ]
 }
 
 # Create tabs
@@ -810,6 +559,32 @@ with tab1:
     # Close container
     st.markdown('</div>', unsafe_allow_html=True)
     
+    # Story Submissions - Enhanced with container and better styling
+    st.markdown('<p class="sub-header">Story Submissions</p>', unsafe_allow_html=True)
+    
+    # Add container
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    
+    # Create a centered column that takes 60% of the width
+    _, col, _ = st.columns([1, 3, 1])
+    
+    with col:
+        st.markdown(f"""
+        <div class="metric-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); text-align: center; padding: 24px; border-left: 4px solid #f59e0b;">
+            <div class="metric-label" style="font-size: 1.2rem; margin-bottom: 8px;">Stories Submitted</div>
+            <div class="metric-value" style="font-size: 3rem; color: #92400e;">{stories_data['Submitted']:,}</div>
+            <div style="font-weight: 500; color: #92400e; margin-top: 8px;">
+                <span style="display: inline-block; background-color: #fde68a; border: 2px solid #f59e0b; border-radius: 9999px; padding: 6px 16px;">
+                    Target: {stories_data['Target']} 
+                    <span style="color: #059669; font-weight: 600; margin-left: 8px;">({stories_data['Submitted']/stories_data['Target']*100:.0f}% achieved)</span>
+                </span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     # Social Media section - Enhanced with better styling and containers
     st.markdown('<p class="sub-header">Marketing Performance</p>', unsafe_allow_html=True)
     
@@ -914,53 +689,229 @@ with tab1:
     # Close container
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Story Submissions - Enhanced with container and better styling
-    st.markdown('<p class="sub-header">Story Submissions</p>', unsafe_allow_html=True)
+    # Website Analytics - Enhanced with better styling and containers
+    st.markdown('<p class="sub-header">Website Analytics</p>', unsafe_allow_html=True)
     
     # Add container
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     
-    # Create a centered column that takes 60% of the width
-    _, col, _ = st.columns([1, 3, 1])
-    
-    with col:
-        st.markdown(f"""
-        <div class="metric-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); text-align: center; padding: 24px; border-left: 4px solid #f59e0b;">
-            <div class="metric-label" style="font-size: 1.2rem; margin-bottom: 8px;">Stories Submitted</div>
-            <div class="metric-value" style="font-size: 3rem; color: #92400e;">{stories_data['Submitted']:,}</div>
-            <div style="font-weight: 500; color: #92400e; margin-top: 8px;">
-                <span style="display: inline-block; background-color: #fde68a; border: 2px solid #f59e0b; border-radius: 9999px; padding: 6px 16px;">
-                    Target: {stories_data['Target']} 
-                    <span style="color: #059669; font-weight: 600; margin-left: 8px;">({stories_data['Submitted']/stories_data['Target']*100:.0f}% achieved)</span>
-                </span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Close container
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Website Analytics - UPDATED
-    st.markdown('<p class="sub-header">Website Analytics</p>', unsafe_allow_html=True)
+    # Website analytics with enhanced styling
     cols = st.columns(4)
     
     web_metrics = [
-        {"label": "Pageviews", "value": traffic_data['Pageviews'], "subtext": f"{traffic_data['Pageviews']/traffic_data['Sessions']:.1f} pageviews per session", "bg": "#e0e7ff", "text": "#3730a3"},
-        {"label": "Sessions", "value": traffic_data['Sessions'], "subtext": "00:01:19 per session", "bg": "#dbeafe", "text": "#1e40af"},
-        {"label": "Visitors", "value": traffic_data['Visitors'], "subtext": "94.5% are new visitors", "bg": "#ccfbf1", "text": "#0f766e"},
-        {"label": "Bounce Rate", "value": f"{traffic_data['Bounce Rate']}%", "subtext": f"{int(traffic_data['Visitors'] * traffic_data['Bounce Rate']/100):,} visitors bounced", "bg": "#fee2e2", "text": "#b91c1c"}
+        {"label": "Pageviews", "value": traffic_data['Pageviews'], "subtext": f"{traffic_data['Pageviews']/traffic_data['Sessions']:.1f} pageviews per session", "bg": "linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 100%)", "text": "#3730a3", "icon": "📄"},
+        {"label": "Sessions", "value": traffic_data['Sessions'], "subtext": "00:01:19 per session", "bg": "linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)", "text": "#1e40af", "icon": "⏱️"},
+        {"label": "Visitors", "value": traffic_data['Visitors'], "subtext": "94.5% are new visitors", "bg": "linear-gradient(135deg, #ccfbf1 0%, #5eead4 100%)", "text": "#0f766e", "icon": "👥"},
+        {"label": "Bounce Rate", "value": f"{traffic_data['Bounce Rate']}%", "subtext": f"{int(traffic_data['Visitors'] * traffic_data['Bounce Rate']/100):,} visitors bounced", "bg": "linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%)", "text": "#b91c1c", "icon": "↩️"}
     ]
     
     for i, col in enumerate(cols):
         with col:
             metric = web_metrics[i]
             st.markdown(f"""
-            <div class="metric-card" style="background-color: {metric['bg']};">
-                <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
-                <div class="metric-value" style="color: {metric['text']};"> {metric['value']} </div>
-                <div>{metric['subtext']}</div>
+            <div class="metric-card" style="background: {metric['bg']}; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 10px; right: 10px; font-size: 1.5rem; opacity: 0.3;">{metric['icon']}</div>
+                <div class="metric-label" style="color: {metric['text']}; font-weight: 500;">{metric['label']}</div>
+                <div class="metric-value" style="color: {metric['text']};">{metric['value']}</div>
+                <div style="color: {metric['text']}; font-weight: 500; font-size: 0.9rem;">{metric['subtext']}</div>
             </div>
             """, unsafe_allow_html=True)
+    
+    # Add a simple chart for website metrics
+    traffic_df = pd.DataFrame({
+        'Metric': ['Pageviews', 'Sessions', 'Visitors'],
+        'Value': [traffic_data['Pageviews'], traffic_data['Sessions'], traffic_data['Visitors']],
+        'Color': ['#4338ca', '#2563eb', '#0d9488']
+    })
+    
+    fig = go.Figure()
+    
+    # Add bars with custom colors
+    for i, row in traffic_df.iterrows():
+        fig.add_trace(go.Bar(
+            x=[row['Metric']],
+            y=[row['Value']],
+            name=row['Metric'],
+            marker_color=row['Color'],
+            text=[f"{row['Value']:,}"],
+            textposition='auto',
+        ))
+    
+    fig.update_layout(
+        title="Website Traffic Metrics",
+        title_font_size=16,
+        title_x=0.5,
+        showlegend=False,
+        height=350,
+        margin=dict(l=20, r=20, t=60, b=20),
+        bargap=0.4,
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Self-Care School Podcast Analytics - NEW SECTION
+    st.markdown('<p class="sub-header">Self-Care School Podcast Analytics</p>', unsafe_allow_html=True)
+    
+    # Add container
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    
+    # Summary metrics
+    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin-bottom: 16px; font-weight: 600; text-align: center;">Podcast Performance Overview</h3>', unsafe_allow_html=True)
+    
+    # Top metrics row
+    cols = st.columns(3)
+    
+    podcast_summary = [
+        {"icon": "🎧", "label": "Total Plays", "value": podcast_data['Total Plays'], "bg": "linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 100%)", "text": "#4338ca"},
+        {"icon": "🎙️", "label": "Total Episodes", "value": podcast_data['Total Episodes'], "bg": "linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)", "text": "#1e40af"},
+        {"icon": "📈", "label": "Average Plays Per Episode", "value": podcast_data['Average Plays'], "bg": "linear-gradient(135deg, #f3e8ff 0%, #d8b4fe 100%)", "text": "#7e22ce"}
+    ]
+    
+    for i, col in enumerate(cols):
+        with col:
+            metric = podcast_summary[i]
+            st.markdown(f"""
+            <div class="metric-card" style="background: {metric['bg']};">
+                <div style="font-size: 2rem; margin-bottom: 4px;">{metric['icon']}</div>
+                <div class="metric-label" style="color: {metric['text']};">{metric['label']}</div>
+                <div class="metric-value" style="color: {metric['text']};">{metric['value']:,}</div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Weekly Plays Chart
+    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin: 20px 0 16px 0; font-weight: 600;">Episode Plays by Week</h3>', unsafe_allow_html=True)
+    
+    weekly_data = pd.DataFrame({
+        'Week': list(podcast_data['Weekly Plays'].keys()),
+        'Plays': list(podcast_data['Weekly Plays'].values())
+    })
+    
+    # Set colors for weekly bars
+    week_colors = {
+        'Week 0': '#8b5cf6',
+        'Week 1': '#a78bfa',
+        'Week 2': '#10b981',
+        'Week 3': '#f59e0b'
+    }
+    
+    # Create weekly plays bar chart
+    weekly_fig = go.Figure()
+    
+    for i, row in weekly_data.iterrows():
+        weekly_fig.add_trace(go.Bar(
+            x=[row['Week']],
+            y=[row['Plays']],
+            name=row['Week'],
+            marker_color=week_colors[row['Week']],
+            text=[f"{row['Plays']:,}"],
+            textposition='auto',
+            hovertemplate=f"<b>{row['Week']}</b><br>Total Plays: %{{y:,}}"
+        ))
+    
+    weekly_fig.update_layout(
+        title="Total Plays by Week",
+        title_font_size=16,
+        title_x=0.5,
+        showlegend=False,
+        height=350,
+        margin=dict(l=20, r=20, t=60, b=20),
+        bargap=0.4,
+        yaxis_title="Number of Plays"
+    )
+    
+    st.plotly_chart(weekly_fig, use_container_width=True)
+    
+    # Top episodes within each week
+    st.markdown('<h3 style="font-size: 1.2rem; color: #4338ca; margin: 20px 0 16px 0; font-weight: 600;">Individual Episode Performance</h3>', unsafe_allow_html=True)
+    
+    # Create tabs for each week
+    week_tabs = st.tabs(["Week 0", "Week 1", "Week 2", "Week 3"])
+    
+    for week_idx, week_tab in enumerate(week_tabs):
+        week_name = f"Week {week_idx}"
+        
+        with week_tab:
+            # Filter episodes for this week
+            week_episodes = [ep for ep in podcast_data['Episodes'] if ep['week'] == week_idx]
+            week_episodes.sort(key=lambda x: x['day'])
+            
+            # Create week-specific bar chart
+            ep_fig = go.Figure()
+            
+            for ep in week_episodes:
+                ep_fig.add_trace(go.Bar(
+                    y=[f"Day {ep['day']}: {ep['title']}"],
+                    x=[ep['plays']],
+                    orientation='h',
+                    marker_color=ep['color'],
+                    text=[f"{ep['plays']:,}"],
+                    textposition='auto',
+                    hovertemplate=f"<b>Day {ep['day']}: {ep['title']}</b><br>Plays: %{{x:,}}"
+                ))
+            
+            ep_fig.update_layout(
+                title=f"{week_name} Episode Performance",
+                title_font_size=16,
+                title_x=0.5,
+                showlegend=False,
+                height=350,
+                margin=dict(l=20, r=20, t=60, b=20),
+                bargap=0.2,
+                xaxis_title="Number of Plays",
+                xaxis=dict(
+                    title="Plays",
+                    titlefont=dict(size=14),
+                ),
+                yaxis=dict(
+                    title="",
+                    titlefont=dict(size=14),
+                    autorange="reversed"  # This puts the highest value at the top
+                )
+            )
+            
+            st.plotly_chart(ep_fig, use_container_width=True)
+            
+            # Add weekly insights
+            total_week_plays = sum(ep['plays'] for ep in week_episodes)
+            avg_week_plays = int(total_week_plays / len(week_episodes))
+            most_played = max(week_episodes, key=lambda x: x['plays'])
+            
+            st.markdown(f"""
+            <div style="display: flex; gap: 16px; margin-top: 10px;">
+                <div style="flex: 1; background: {week_colors[week_name]}20; padding: 12px; border-radius: 8px; text-align: center; border-left: 3px solid {week_colors[week_name]};">
+                    <div style="font-weight: 600; color: {week_colors[week_name]};">Total Plays</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: {week_colors[week_name]};">{total_week_plays:,}</div>
+                </div>
+                <div style="flex: 1; background: {week_colors[week_name]}20; padding: 12px; border-radius: 8px; text-align: center; border-left: 3px solid {week_colors[week_name]};">
+                    <div style="font-weight: 600; color: {week_colors[week_name]};">Average Per Episode</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: {week_colors[week_name]};">{avg_week_plays:,}</div>
+                </div>
+                <div style="flex: 2; background: {week_colors[week_name]}20; padding: 12px; border-radius: 8px; text-align: center; border-left: 3px solid {week_colors[week_name]};">
+                    <div style="font-weight: 600; color: {week_colors[week_name]};">Most Popular Episode</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: {week_colors[week_name]};">Day {most_played['day']}: {most_played['title']}</div>
+                    <div style="font-size: 0.9rem; color: {week_colors[week_name]};">{most_played['plays']:,} plays</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Key insights for podcast data
+    st.markdown("""
+    <div class="insight-container">
+        <h3 style="margin-top: 0; color: #4338ca; font-size: 1.2rem; margin-bottom: 12px;">Key Podcast Insights:</h3>
+        <ul style="list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #8b5cf6; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Week 0 (Orientation)</strong> has the highest total plays at 6,957, showing strong initial engagement</li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #a78bfa; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Day 1 episodes</strong> consistently have the highest plays within each week</li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #f59e0b; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> <strong>Week 3</strong> shows a significant drop in plays (1,190) compared to previous weeks</li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center;"><span style="background-color: #10b981; width: 12px; height: 12px; display: inline-block; margin-right: 8px; border-radius: 50%;"></span> Average plays gradually decrease each week, indicating an opportunity for re-engagement strategies</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with tab2:
     # Analysis & Recommendations - UPDATED with new data insights
@@ -1019,6 +970,21 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
     
+    # Podcast Insights - NEW
+    st.markdown('<p class="sub-header">Podcast Performance Analysis</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="insight-container">
+        <p>The Self-Care School podcast shows clear engagement patterns:</p>
+        <ul>
+            <li>Early episodes (Week 0) receive highest engagement (6,957 total plays)</li>
+            <li>Day 1 episodes of each week consistently outperform other days</li>
+            <li>Significant drop-off in Week 3 content (only 1,190 total plays)</li>
+            <li>Average plays per episode decreasing week over week</li>
+        </ul>
+        <p>These patterns suggest strong initial interest but challenges with sustained engagement through the program.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Strategic Recommendations - UPDATED
     st.markdown('<p class="main-header">Strategic Recommendations</p>', unsafe_allow_html=True)
     
@@ -1050,21 +1016,21 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
     
-    # Priority 3 - UPDATED
-    st.markdown('<p class="sub-header">Priority 3: Social Engagement Maximization</p>', unsafe_allow_html=True)
+    # Priority 3 - UPDATED with podcast recommendations
+    st.markdown('<p class="sub-header">Priority 3: Content & Engagement Optimization</p>', unsafe_allow_html=True)
     st.markdown("""
     <div class="insight-container">
         <ul>
-            <li><span style="font-weight: bold;">Comment Response Strategy:</span> Develop dedicated resources to respond to all 74+ comments for improved community engagement.</li>
+            <li><span style="font-weight: bold;">Podcast Teaser Strategy:</span> Create short "teaser" content from upcoming episodes to maintain interest.</li>
+            <li><span style="font-weight: bold;">Week 3 Content Evaluation:</span> Review content from Week 3 episodes to identify potential engagement barriers.</li>
             <li><span style="font-weight: bold;">Video Content Expansion:</span> Double down on video content given the strong 70.7K views.</li>
             <li><span style="font-weight: bold;">Shareable Content Focus:</span> Create more content optimized for sharing given the 217 shares already achieved.</li>
-            <li><span style="font-weight: bold;">User Story Campaign:</span> Feature the best of the 234 submitted stories in social media campaigns.</li>
-            <li><span style="font-weight: bold;">Cross-Platform Integration:</span> Ensure seamless experience between social platforms and the main program website.</li>
+            <li><span style="font-weight: bold;">Comment Response Initiative:</span> Develop dedicated resources to respond to all 74+ comments for improved community engagement.</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Implementation Timeline - UPDATED
+
+# Implementation Timeline - UPDATED
     st.markdown('<p class="sub-header">Implementation Timeline</p>', unsafe_allow_html=True)
     
     timeline_data = pd.DataFrame([
@@ -1074,12 +1040,13 @@ with tab2:
         {"Recommendation": "Youth focus groups with 101 existing 18-25 users", "Timeframe": "Short-term (1 week)", "Expected Impact": "High - Critical insights for improvement"},
         {"Recommendation": "Featured story campaign from 234 submissions", "Timeframe": "Short-term (1-2 weeks)", "Expected Impact": "Medium - Leverages existing UGC success"},
         {"Recommendation": "Campus ambassador emergency program", "Timeframe": "Short-term (2 weeks)", "Expected Impact": "High - Direct channel to target demographic"},
-        {"Recommendation": "Re-engagement campaign for non-completers", "Timeframe": "Short-term (1 week)", "Expected Impact": "High - Could improve completion by 10-15%"}
+        {"Recommendation": "Re-engagement campaign for non-completers", "Timeframe": "Short-term (1 week)", "Expected Impact": "High - Could improve completion by 10-15%"},
+        {"Recommendation": "Podcast content optimization", "Timeframe": "Medium-term (2-3 weeks)", "Expected Impact": "Medium - Could reduce Week 3 drop-off"}
     ])
     
     st.dataframe(timeline_data, use_container_width=True, hide_index=True)
     
-    # KPI Forecast - UPDATED
+    # KPI Forecast - UPDATED with podcast insights
     st.markdown('<p class="sub-header">KPI Forecast with Recommended Actions</p>', unsafe_allow_html=True)
     st.markdown("""
     <div class="insight-container">
@@ -1088,6 +1055,7 @@ with tab2:
             <li><span style="font-weight: bold;">Week 0 Completion:</span> With enhanced re-engagement, target 45-50% completion (5,300-6,000 participants).</li>
             <li><span style="font-weight: bold;">Badge Claims:</span> Badge system enhancement could bring weekly claims to 4,000-4,500 (vs. 5,000 target).</li>
             <li><span style="font-weight: bold;">Social Engagement:</span> Comment response initiative should increase engagement metrics by 30-40%.</li>
+            <li><span style="font-weight: bold;">Podcast Engagement:</span> Content optimization could reduce Week 3 drop-off by 20-30%, bringing plays closer to Week 2 levels.</li>
             <li><span style="font-weight: bold;">Story Submissions:</span> Continue to exceed targets; expect 300+ by program end.</li>
         </ul>
     </div>
